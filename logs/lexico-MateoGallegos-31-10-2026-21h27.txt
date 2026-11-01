@@ -1,7 +1,7 @@
 ==================================================
 LOG DE ANÁLISIS LÉXICO
 Desarrollador: Mateo Gallegos (magasinc)
-Fecha/Hora: 31/10/2026 21:08
+Fecha/Hora: 31/10/2026 21:27
 Archivo analizado: algoritmo1_G.cs
 ==================================================
 [Línea 4] TOKEN: INT_TYPE | Valor: int
@@ -30,19 +30,28 @@ Archivo analizado: algoritmo1_G.cs
 [Línea 8] TOKEN: ASSIGN | Valor: =
 [Línea 8] TOKEN: CHAR | Valor: 'a'
 [Línea 8] TOKEN: SEMICOLON | Valor: ;
-[Línea 11] TOKEN: INT_TYPE | Valor: int
-[Línea 11] TOKEN: LBRACKET | Valor: [
-[Línea 11] TOKEN: RBRACKET | Valor: ]
-[Línea 11] TOKEN: ID | Valor: notas
-[Línea 11] TOKEN: ASSIGN | Valor: =
-[Línea 11] TOKEN: INT | Valor: 10
-[Línea 11] TOKEN: INT | Valor: 8
-[Línea 11] TOKEN: INT | Valor: 9
-[Línea 11] TOKEN: SEMICOLON | Valor: ;
-[Línea 14] TOKEN: INT_TYPE | Valor: int
-[Línea 14] TOKEN: ID | Valor: @class
-[Línea 14] TOKEN: ASSIGN | Valor: =
-[Línea 14] TOKEN: INT | Valor: 1
-[Línea 14] TOKEN: SEMICOLON | Valor: ;
+[Línea 9] TOKEN: INT_TYPE | Valor: int
+[Línea 9] TOKEN: ID | Valor: precio
+[Línea 9] TOKEN: ASSIGN | Valor: =
+[Línea 9] TOKEN: INT | Valor: 50
+[Línea 9] TOKEN: SEMICOLON | Valor: ;
+[Línea 12] TOKEN: INT_TYPE | Valor: int
+[Línea 12] TOKEN: LBRACKET | Valor: [
+[Línea 12] TOKEN: RBRACKET | Valor: ]
+[Línea 12] TOKEN: ID | Valor: notas
+[Línea 12] TOKEN: ASSIGN | Valor: =
+[Línea 12] TOKEN: LBRACE | Valor: {
+[Línea 12] TOKEN: INT | Valor: 10
+[Línea 12] TOKEN: COMMA | Valor: ,
+[Línea 12] TOKEN: INT | Valor: 8
+[Línea 12] TOKEN: COMMA | Valor: ,
+[Línea 12] TOKEN: INT | Valor: 9
+[Línea 12] TOKEN: RBRACE | Valor: }
+[Línea 12] TOKEN: SEMICOLON | Valor: ;
+[Línea 15] TOKEN: INT_TYPE | Valor: int
+[Línea 15] TOKEN: ID | Valor: @class
+[Línea 15] TOKEN: ASSIGN | Valor: =
+[Línea 15] TOKEN: INT | Valor: 1
+[Línea 15] TOKEN: SEMICOLON | Valor: ;
 ==================================================
 Análisis finalizado exitosamente.

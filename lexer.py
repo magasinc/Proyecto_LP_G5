@@ -22,15 +22,19 @@ reserved_magasinc = {
 # Lista de tokens asignados (Debe llamarse 'tokens' para PLY)
 tokens = [
     'ID', 'INT', 'DOUBLE', 'STRING', 'CHAR',
-    'LBRACKET', 'RBRACKET', 'ASSIGN', 'SEMICOLON'
+    'LBRACKET', 'RBRACKET', 'ASSIGN', 'SEMICOLON', 'LBRACE', 'RBRACE', 'COMMA'
 ] + list(reserved_magasinc.values())
 
 # 2. Reglas de expresiones regulares para tokens simples
+t_LBRACE = r'\{'
+t_RBRACE = r'\}'
 t_LBRACKET = r'\['
 t_RBRACKET = r'\]'
 t_ASSIGN = r'='
 t_SEMICOLON = r';'
+t_COMMA = r','
 t_ignore = ' \t'  # Ignorar espacios en blanco y tabulaciones
+
 
 # 3. Reglas complejas (Funciones en orden de prioridad)
 
