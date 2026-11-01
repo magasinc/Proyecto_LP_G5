@@ -15,7 +15,7 @@ class Programa
         int b = 3;
 
         // Operadores aritmeticos
-        int suma = a + b;
+        int suma = a # b;
         int resta = a - b;
         int producto = a * b;
         int division = a / b;
