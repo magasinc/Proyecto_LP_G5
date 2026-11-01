@@ -1,0 +1,48 @@
+==================================================
+LOG DE ANÁLISIS LÉXICO
+Desarrollador: Mateo Gallegos (magasinc)
+Fecha/Hora: 31/10/2026 21:09
+Archivo analizado: algoritmo1_G.cs
+==================================================
+[Línea 4] TOKEN: INT_TYPE | Valor: int
+[Línea 4] TOKEN: ID | Valor: edad
+[Línea 4] TOKEN: ASSIGN | Valor: =
+[Línea 4] TOKEN: INT | Valor: 20
+[Línea 4] TOKEN: SEMICOLON | Valor: ;
+[Línea 5] TOKEN: VAR | Valor: var
+[Línea 5] TOKEN: ID | Valor: nombre
+[Línea 5] TOKEN: ASSIGN | Valor: =
+[Línea 5] TOKEN: STRING | Valor: "Carlos"
+[Línea 5] TOKEN: SEMICOLON | Valor: ;
+[Línea 6] TOKEN: CONST | Valor: const
+[Línea 6] TOKEN: DOUBLE_TYPE | Valor: double
+[Línea 6] TOKEN: ID | Valor: PI
+[Línea 6] TOKEN: ASSIGN | Valor: =
+[Línea 6] TOKEN: DOUBLE | Valor: 3.14
+[Línea 6] TOKEN: SEMICOLON | Valor: ;
+[Línea 7] TOKEN: BOOL_TYPE | Valor: bool
+[Línea 7] TOKEN: ID | Valor: activo
+[Línea 7] TOKEN: ASSIGN | Valor: =
+[Línea 7] TOKEN: BOOL | Valor: true
+[Línea 7] TOKEN: SEMICOLON | Valor: ;
+[Línea 8] TOKEN: CHAR_TYPE | Valor: char
+[Línea 8] TOKEN: ID | Valor: letra
+[Línea 8] TOKEN: ASSIGN | Valor: =
+[Línea 8] TOKEN: CHAR | Valor: 'a'
+[Línea 8] TOKEN: SEMICOLON | Valor: ;
+[Línea 11] TOKEN: INT_TYPE | Valor: int
+[Línea 11] TOKEN: LBRACKET | Valor: [
+[Línea 11] TOKEN: RBRACKET | Valor: ]
+[Línea 11] TOKEN: ID | Valor: notas
+[Línea 11] TOKEN: ASSIGN | Valor: =
+[Línea 11] TOKEN: INT | Valor: 10
+[Línea 11] TOKEN: INT | Valor: 8
+[Línea 11] TOKEN: INT | Valor: 9
+[Línea 11] TOKEN: SEMICOLON | Valor: ;
+[Línea 14] TOKEN: INT_TYPE | Valor: int
+[Línea 14] TOKEN: ID | Valor: @class
+[Línea 14] TOKEN: ASSIGN | Valor: =
+[Línea 14] TOKEN: INT | Valor: 1
+[Línea 14] TOKEN: SEMICOLON | Valor: ;
+==================================================
+Análisis finalizado exitosamente.
