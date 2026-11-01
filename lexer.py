@@ -7,23 +7,33 @@ import sys
 # =========================================================
 
 # 1. Palabras reservadas asignadas
-reserved_magasinc = {
+reserved = {
     'var': 'VAR',
     'const': 'CONST',
-    'int': 'INT_TYPE',
-    'double': 'DOUBLE_TYPE',
-    'bool': 'BOOL_TYPE',
-    'char': 'CHAR_TYPE',
-    'string': 'STRING_TYPE',
-    'true': 'BOOL',
-    'false': 'BOOL'
+    'int': 'INT',
+    'double': 'DOUBLE',
+    'bool': 'BOOL',
+    'char': 'CHAR',
+    'string': 'STRING',
+    'true': 'TRUE',
+    'false': 'FALSE'
 }
 
 # Lista de tokens asignados (Debe llamarse 'tokens' para PLY)
 tokens = [
-    'ID', 'INT', 'DOUBLE', 'STRING', 'CHAR',
-    'LBRACKET', 'RBRACKET', 'ASSIGN', 'SEMICOLON', 'LBRACE', 'RBRACE', 'COMMA'
-] + list(reserved_magasinc.values())
+    'ID',
+    'INT_LIT',
+    'DOUBLE_LIT',
+    'STRING_LIT',
+    'CHAR_LIT',
+    'LBRACKET', 
+    'RBRACKET', 
+    'ASSIGN', 
+    'SEMICOLON', 
+    'LBRACE', 
+    'RBRACE', 
+    'COMMA'
+] + list(reserved.values())
 
 # 2. Reglas de expresiones regulares para tokens simples
 t_LBRACE = r'\{'
@@ -37,33 +47,33 @@ t_ignore = ' \t'  # Ignorar espacios en blanco y tabulaciones
 
 
 # 3. Reglas complejas (Funciones en orden de prioridad)
-
-def t_DOUBLE(t):
+def t_DOUBLE_LIT(t):
     r'\d+\.\d+'
     t.value = float(t.value)
     return t
 
-def t_INT(t):
+def t_INT_LIT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-def t_STRING(t):
+def t_STRING_LIT(t):
     r'"[^"]*"'
     return t
 
-def t_CHAR(t):
+def t_CHAR_LIT(t):
     r'\'[^\']\''
     return t
 
 def t_ID(t):
     r'@[a-zA-Z_][a-zA-Z0-9_]*|[a-zA-Z_][a-zA-Z0-9_]*'
-    t.type = reserved_magasinc.get(t.value, 'ID')
+    t.type = reserved.get(t.value, 'ID')
     return t
 
 def t_COMMENT(t):
     r'//.*|/\*[\s\S]*?\*/'
-    pass  # Ignorar comentarios en el análisis
+    # Los comentarios multilinea tambien deben contar sus saltos de linea
+    t.lexer.lineno += t.value.count('\n')
 
 def t_newline(t):
     r'\n+'
@@ -166,7 +176,7 @@ t_DOT = r'\.'
 # Aprovechamos la funcion t_ID existente de Mateo
 # para reconocer List como un token independiente.
 
-reserved_magasinc['List'] = 'LIST'
+reserved['List'] = 'LIST'
 
 # Verificar que LIST este registrado
 # APORTE: Steven Avelino
@@ -184,28 +194,38 @@ lexer = lex.lex()
 # Adaptacion para pruebas de cada integrante
 # ---------------------------------------------------------
 
-# Seleccionar el algoritmo a analizar
-ruta_algoritmo = (
-    sys.argv[1] if len(sys.argv) > 1
-    else os.path.join("algoritmos", "algoritmo1_G.cs")
-)
+def analizar(codigo):
+    """Analiza el codigo C# y devuelve (tokens, errores)."""
+    errores_lexicos.clear()
+    lexer.lineno = 1
+    lexer.input(codigo)
+    lista_tokens = list(lexer)
+    return lista_tokens, list(errores_lexicos)
 
-# Identificar al integrante que realiza la prueba
-desarrollador = (
-    sys.argv[2] if len(sys.argv) > 2
-    else "MateoGallegos"
-)
 
-if os.path.exists(ruta_algoritmo):
+def main():
+    # Seleccionar el algoritmo a analizar
+    ruta_algoritmo = (
+        sys.argv[1] if len(sys.argv) > 1
+        else os.path.join("algoritmos", "algoritmo1_G.cs")
+    )
+
+    # Identificar al integrante que realiza la prueba
+    desarrollador = (
+        sys.argv[2] if len(sys.argv) > 2
+        else "MateoGallegos"
+    )
+
+    if not os.path.exists(ruta_algoritmo):
+        print(f"Error: No se encontro {ruta_algoritmo}")
+        return
 
     # Leer el codigo C#
     with open(ruta_algoritmo, "r", encoding="utf-8") as archivo:
         codigo_csharp = archivo.read()
 
-    # Reiniciar el analizador
-    errores_lexicos.clear()
-    lexer.lineno = 1
-    lexer.input(codigo_csharp)
+    print("\n--- TOKENS RECONOCIDOS ---")
+    tokens_reconocidos, errores = analizar(codigo_csharp)
 
     # Crear carpeta de logs
     os.makedirs("logs", exist_ok=True)
@@ -229,12 +249,8 @@ if os.path.exists(ruta_algoritmo):
         "TOKENS RECONOCIDOS:"
     ]
 
-    print("\n--- TOKENS RECONOCIDOS ---")
-
     # Recorrer los tokens
-    contador = 0
-
-    for tok in lexer:
+    for tok in tokens_reconocidos:
         linea = (
             f"[Linea {tok.lineno}] "
             f"TOKEN: {tok.type} | Valor: {tok.value}"
@@ -242,31 +258,29 @@ if os.path.exists(ruta_algoritmo):
 
         print(linea)
         salida_log.append(linea)
-        contador += 1
 
     # Agregar resultados
     salida_log.append("")
     salida_log.append("ERRORES LEXICOS:")
 
-    if errores_lexicos:
-        salida_log.extend(errores_lexicos)
+    if errores:
+        salida_log.extend(errores)
     else:
         salida_log.append("Sin errores lexicos")
 
     salida_log.append("")
-    salida_log.append(f"Total tokens: {contador}")
-    salida_log.append(
-        f"Total errores: {len(errores_lexicos)}"
-    )
+    salida_log.append(f"Total tokens: {len(tokens_reconocidos)}")
+    salida_log.append(f"Total errores: {len(errores)}")
 
     # Guardar archivo log
     with open(ruta_log, "w", encoding="utf-8") as archivo:
         archivo.write("\n".join(salida_log))
 
     print("\n--- RESULTADO ---")
-    print(f"Tokens reconocidos: {contador}")
-    print(f"Errores lexicos: {len(errores_lexicos)}")
+    print(f"Tokens reconocidos: {len(tokens_reconocidos)}")
+    print(f"Errores lexicos: {len(errores)}")
     print(f"Log generado: {ruta_log}")
 
-else:
-    print(f"Error: No se encontro {ruta_algoritmo}")
+
+if __name__ == "__main__":
+    main()
