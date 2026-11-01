@@ -1,5 +1,6 @@
 import ply.lex as lex
 import os
+import re
 from datetime import datetime
 import sys
 # =========================================================
@@ -52,13 +53,23 @@ def t_DOUBLE_LIT(t):
     t.value = float(t.value)
     return t
 
+# Geovanny: estas dos reglas de error van antes para atrapar el 
+# lexema si está implementado.
+def t_ERROR_DECIMAL(t):
+    r'\d+\.(?!\d)'
+    registrar_error(t, "Numero decimal mal formado", t.value)
+
+def t_ERROR_IDENTIFICADOR(t):
+    r'\d+[a-zA-Z_][a-zA-Z0-9_]*'
+    registrar_error(t, "Identificador mal formado", t.value)
+
 def t_INT_LIT(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
 def t_STRING_LIT(t):
-    r'"[^"]*"'
+    r'"[^"\n]*"'
     return t
 
 def t_CHAR_LIT(t):
@@ -75,26 +86,16 @@ def t_COMMENT(t):
     # Los comentarios multilinea tambien deben contar sus saltos de linea
     t.lexer.lineno += t.value.count('\n')
 
+# Geovanny: Error si el comentario no esta cerrado.
+def t_ERROR_COMMENT(t):
+    r'/\*[\s\S]*'
+    registrar_error(t, "Comentario sin cerrar", "/*")
+    t.lexer.lineno += t.value.count('\n')
+
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
-
-# Lista para guardar los errores de cada prueba
-errores_lexicos = []
-
-def t_error(t):
-    columna = t.lexpos - t.lexer.lexdata.rfind('\n', 0, t.lexpos)
-
-    mensaje = (
-        f"Error lexico: Caracter no reconocido "
-        f"'{t.value[0]}' en linea {t.lineno}, "
-        f"columna {columna}"
-    )
-
-    errores_lexicos.append(mensaje)
-    print(mensaje)
-    t.lexer.skip(1)
 
 
 # =========================================================
@@ -139,7 +140,6 @@ tokens += [
 ]
 
 # 2. REGLAS DE OPERADORES ARITMETICOS
-
 t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
@@ -149,13 +149,11 @@ t_INCREMENT = r'\+\+'
 t_DECREMENT = r'--'
 
 # 3. REGLAS DE OPERADORES LOGICOS
-
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_NOT = r'!'
 
 # 4. REGLAS DE OPERADORES RELACIONALES
-
 t_EQUAL = r'=='
 t_NOT_EQUAL = r'!='
 t_LESS = r'<'
@@ -164,7 +162,6 @@ t_LESS_EQUAL = r'<='
 t_GREATER_EQUAL = r'>='
 
 # 5. REGLAS DE DELIMITADORES
-
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_DOT = r'\.'
@@ -183,6 +180,87 @@ reserved['List'] = 'LIST'
 if 'LIST' not in tokens:
     tokens.append('LIST')
 
+# =========================================================
+# Geovanny Diaz - g30dl (Analizador Léxico)
+# Analizador léxico: estructuras de datos y errores
+# =========================================================
+
+reserved.update({
+    "if": "IF",
+    "else": "ELSE",
+    "while": "WHILE",
+    "for": "FOR",
+    "return": "RETURN",
+    "break": "BREAK",
+    "continue": "CONTINUE",
+    "void": "VOID",
+    "static": "STATIC",
+    "new": "NEW",
+    "Dictionary": "DICTIONARY",
+})
+
+tokens += [
+    "IF",
+    "ELSE",
+    "WHILE",
+    "FOR",
+    "RETURN",
+    "BREAK",
+    "CONTINUE",
+    "VOID",
+    "STATIC",
+    "NEW",
+    "DICTIONARY"
+]
+
+# Lista para guardar los errores de cada prueba. Cada error es un dict
+# con: descripcion, lexema, linea y columna (la GUI los usa por separado).
+errores_lexicos = []
+
+def calcular_columna(t):
+    return t.lexpos - t.lexer.lexdata.rfind('\n', 0, t.lexpos)
+
+def formatear_error(error):
+    return (
+        f"Error lexico: {error['descripcion']} "
+        f"'{error['lexema']}' en linea {error['linea']}, "
+        f"columna {error['columna']}"
+    )
+
+def registrar_error(t, descripcion, lexema):
+    error = {
+        "descripcion": descripcion,
+        "lexema": lexema,
+        "linea": t.lineno,
+        "columna": calcular_columna(t),
+    }
+    errores_lexicos.append(error)
+    print(formatear_error(error))
+
+
+
+ # PLY llama a t_error cuando ninguna regla coincide.
+def t_error(t):
+    primero = t.value[0]
+
+    if primero == '"':
+        resto = re.match(r'"[^"\n]*', t.value).group()
+        registrar_error(t, "Cadena sin cerrar", resto)
+        t.lexer.skip(len(resto))
+
+    elif primero == "'":
+        resto = re.match(r"'[^'\n]*'?", t.value).group()
+        registrar_error(t, "Caracter mal formado", resto)
+        t.lexer.skip(len(resto))
+        
+    else:
+        registrar_error(t, "Caracter no reconocido", primero)
+        t.lexer.skip(1)
+
+
+# =========================================================
+# Geovanny Diaz - g30dl (Analizador Léxico)
+# =========================================================
 
 
 # Inicializar lexer
@@ -264,7 +342,7 @@ def main():
     salida_log.append("ERRORES LEXICOS:")
 
     if errores:
-        salida_log.extend(errores)
+        salida_log.extend(formatear_error(e) for e in errores)
     else:
         salida_log.append("Sin errores lexicos")
 
