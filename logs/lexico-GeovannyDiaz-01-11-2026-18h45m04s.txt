@@ -1,0 +1,100 @@
+==========================================
+ANALISIS LEXICO - C#
+Desarrollador: GeovannyDiaz
+Fecha: 01/11/2026 18:45:04
+Archivo: algoritmo_GD.cs
+==========================================
+
+TOKENS RECONOCIDOS:
+[Linea 7] TOKEN: IF | Valor: if
+[Linea 7] TOKEN: LPAREN | Valor: (
+[Linea 7] TOKEN: ID | Valor: activo
+[Linea 7] TOKEN: RPAREN | Valor: )
+[Linea 7] TOKEN: LBRACE | Valor: {
+[Linea 9] TOKEN: RBRACE | Valor: }
+[Linea 9] TOKEN: ELSE | Valor: else
+[Linea 9] TOKEN: LBRACE | Valor: {
+[Linea 11] TOKEN: RBRACE | Valor: }
+[Linea 14] TOKEN: WHILE | Valor: while
+[Linea 14] TOKEN: LPAREN | Valor: (
+[Linea 14] TOKEN: ID | Valor: activo
+[Linea 14] TOKEN: RPAREN | Valor: )
+[Linea 14] TOKEN: LBRACE | Valor: {
+[Linea 15] TOKEN: CONTINUE | Valor: continue
+[Linea 15] TOKEN: SEMICOLON | Valor: ;
+[Linea 16] TOKEN: BREAK | Valor: break
+[Linea 16] TOKEN: SEMICOLON | Valor: ;
+[Linea 17] TOKEN: RBRACE | Valor: }
+[Linea 20] TOKEN: FOR | Valor: for
+[Linea 20] TOKEN: LPAREN | Valor: (
+[Linea 20] TOKEN: SEMICOLON | Valor: ;
+[Linea 20] TOKEN: SEMICOLON | Valor: ;
+[Linea 20] TOKEN: RPAREN | Valor: )
+[Linea 20] TOKEN: LBRACE | Valor: {
+[Linea 21] TOKEN: BREAK | Valor: break
+[Linea 21] TOKEN: SEMICOLON | Valor: ;
+[Linea 22] TOKEN: RBRACE | Valor: }
+[Linea 25] TOKEN: STATIC | Valor: static
+[Linea 25] TOKEN: VOID | Valor: void
+[Linea 25] TOKEN: ID | Valor: Saludar
+[Linea 25] TOKEN: LPAREN | Valor: (
+[Linea 25] TOKEN: RPAREN | Valor: )
+[Linea 25] TOKEN: LBRACE | Valor: {
+[Linea 26] TOKEN: RETURN | Valor: return
+[Linea 26] TOKEN: SEMICOLON | Valor: ;
+[Linea 27] TOKEN: RBRACE | Valor: }
+[Linea 28] TOKEN: STATIC | Valor: static
+[Linea 28] TOKEN: INT | Valor: int
+[Linea 28] TOKEN: ID | Valor: Obtener
+[Linea 28] TOKEN: LPAREN | Valor: (
+[Linea 28] TOKEN: RPAREN | Valor: )
+[Linea 28] TOKEN: LBRACE | Valor: {
+[Linea 29] TOKEN: RETURN | Valor: return
+[Linea 29] TOKEN: ID | Valor: valor
+[Linea 29] TOKEN: SEMICOLON | Valor: ;
+[Linea 30] TOKEN: RBRACE | Valor: }
+[Linea 33] TOKEN: DICTIONARY | Valor: Dictionary
+[Linea 33] TOKEN: LESS | Valor: <
+[Linea 33] TOKEN: STRING | Valor: string
+[Linea 33] TOKEN: COMMA | Valor: ,
+[Linea 33] TOKEN: INT | Valor: int
+[Linea 33] TOKEN: GREATER | Valor: >
+[Linea 33] TOKEN: ID | Valor: edades
+[Linea 33] TOKEN: ASSIGN | Valor: =
+[Linea 33] TOKEN: NEW | Valor: new
+[Linea 33] TOKEN: DICTIONARY | Valor: Dictionary
+[Linea 33] TOKEN: LESS | Valor: <
+[Linea 33] TOKEN: STRING | Valor: string
+[Linea 33] TOKEN: COMMA | Valor: ,
+[Linea 33] TOKEN: INT | Valor: int
+[Linea 33] TOKEN: GREATER | Valor: >
+[Linea 33] TOKEN: LPAREN | Valor: (
+[Linea 33] TOKEN: RPAREN | Valor: )
+[Linea 33] TOKEN: SEMICOLON | Valor: ;
+[Linea 36] TOKEN: ID | Valor: valor
+[Linea 36] TOKEN: ASSIGN | Valor: =
+[Linea 36] TOKEN: INT_LIT | Valor: 5
+[Linea 36] TOKEN: INT_LIT | Valor: 2
+[Linea 36] TOKEN: SEMICOLON | Valor: ;
+[Linea 37] TOKEN: ID | Valor: cadena
+[Linea 37] TOKEN: ASSIGN | Valor: =
+[Linea 38] TOKEN: ID | Valor: letra
+[Linea 38] TOKEN: ASSIGN | Valor: =
+[Linea 38] TOKEN: SEMICOLON | Valor: ;
+[Linea 39] TOKEN: ASSIGN | Valor: =
+[Linea 39] TOKEN: INT_LIT | Valor: 1
+[Linea 39] TOKEN: SEMICOLON | Valor: ;
+[Linea 40] TOKEN: ID | Valor: numero
+[Linea 40] TOKEN: ASSIGN | Valor: =
+[Linea 40] TOKEN: SEMICOLON | Valor: ;
+
+ERRORES LEXICOS:
+Error lexico: Caracter no reconocido '#' en linea 36, columna 11
+Error lexico: Cadena sin cerrar '"sin cerrar' en linea 37, columna 10
+Error lexico: Caracter mal formado ''ab'' en linea 38, columna 9
+Error lexico: Identificador mal formado '2abc' en linea 39, columna 1
+Error lexico: Numero decimal mal formado '3.' en linea 40, columna 10
+Error lexico: Comentario sin cerrar '/*' en linea 43, columna 1
+
+Total tokens: 81
+Total errores: 6
