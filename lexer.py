@@ -1,8 +1,5 @@
 import ply.lex as lex
-import os
 import re
-from datetime import datetime
-import sys
 # =========================================================
 # INICIO APORTE: Mateo Gallegos - magasinc (Analizador Léxico)
 # =========================================================
@@ -268,8 +265,8 @@ lexer = lex.lex()
 
 
 # ---------------------------------------------------------
-# LECTURA Y GENERACION DE LOGS (AVANCE 1)
-# Adaptacion para pruebas de cada integrante
+# ANALISIS LEXICO
+# La ejecucion por consola y los logs viven en main.py
 # ---------------------------------------------------------
 
 def analizar(codigo):
@@ -279,86 +276,3 @@ def analizar(codigo):
     lexer.input(codigo)
     lista_tokens = list(lexer)
     return lista_tokens, list(errores_lexicos)
-
-
-def main():
-    # Seleccionar el algoritmo a analizar
-    ruta_algoritmo = (
-        sys.argv[1] if len(sys.argv) > 1
-        else os.path.join("algoritmos", "algoritmo1_G.cs")
-    )
-
-    # Identificar al integrante que realiza la prueba
-    desarrollador = (
-        sys.argv[2] if len(sys.argv) > 2
-        else "MateoGallegos"
-    )
-
-    if not os.path.exists(ruta_algoritmo):
-        print(f"Error: No se encontro {ruta_algoritmo}")
-        return
-
-    # Leer el codigo C#
-    with open(ruta_algoritmo, "r", encoding="utf-8") as archivo:
-        codigo_csharp = archivo.read()
-
-    print("\n--- TOKENS RECONOCIDOS ---")
-    tokens_reconocidos, errores = analizar(codigo_csharp)
-
-    # Crear carpeta de logs
-    os.makedirs("logs", exist_ok=True)
-
-    # Nombre del log
-    ahora = datetime.now()
-    fecha = ahora.strftime("%d-%m-%Y-%Hh%Mm%Ss")
-
-    nombre_log = f"lexico-{desarrollador}-{fecha}.txt"
-    ruta_log = os.path.join("logs", nombre_log)
-
-    # Informacion inicial
-    salida_log = [
-        "==========================================",
-        "ANALISIS LEXICO - C#",
-        f"Desarrollador: {desarrollador}",
-        f"Fecha: {ahora.strftime('%d/%m/%Y %H:%M:%S')}",
-        f"Archivo: {os.path.basename(ruta_algoritmo)}",
-        "==========================================",
-        "",
-        "TOKENS RECONOCIDOS:"
-    ]
-
-    # Recorrer los tokens
-    for tok in tokens_reconocidos:
-        linea = (
-            f"[Linea {tok.lineno}] "
-            f"TOKEN: {tok.type} | Valor: {tok.value}"
-        )
-
-        print(linea)
-        salida_log.append(linea)
-
-    # Agregar resultados
-    salida_log.append("")
-    salida_log.append("ERRORES LEXICOS:")
-
-    if errores:
-        salida_log.extend(formatear_error(e) for e in errores)
-    else:
-        salida_log.append("Sin errores lexicos")
-
-    salida_log.append("")
-    salida_log.append(f"Total tokens: {len(tokens_reconocidos)}")
-    salida_log.append(f"Total errores: {len(errores)}")
-
-    # Guardar archivo log
-    with open(ruta_log, "w", encoding="utf-8") as archivo:
-        archivo.write("\n".join(salida_log))
-
-    print("\n--- RESULTADO ---")
-    print(f"Tokens reconocidos: {len(tokens_reconocidos)}")
-    print(f"Errores lexicos: {len(errores)}")
-    print(f"Log generado: {ruta_log}")
-
-
-if __name__ == "__main__":
-    main()
