@@ -1,0 +1,49 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: GeovannyDiaz
+Fecha: 06/11/2026 11:54:26
+Archivo: algoritmo_GD_sintactico.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Error sintactico: Token inesperado '+' en linea 24, columna 21
+Error sintactico: Token inesperado ')' en linea 25, columna 35
+Error sintactico: Token inesperado 'int' en linea 26, columna 12
+Error sintactico: Token inesperado ')' en linea 26, columna 39
+Error sintactico: Token inesperado 'double' en linea 27, columna 15
+Error sintactico: Token inesperado ')' en linea 27, columna 45
+Error sintactico: Token inesperado '++' en linea 31, columna 13
+Error sintactico: Token inesperado '++' en linea 37, columna 13
+Error sintactico: Token inesperado '++' en linea 42, columna 10
+Error sintactico: Token inesperado 'static' en linea 53, columna 1
+Error sintactico: Token inesperado '=' en linea 53, columna 44
+Error sintactico: Token inesperado '=' en linea 56, columna 46
+Error sintactico: Token inesperado '=' en linea 59, columna 52
+Error sintactico: Token inesperado '3.1416' en linea 69, columna 18
+Error sintactico: Token inesperado ';' en linea 73, columna 21
+Error sintactico: Token inesperado ';' en linea 77, columna 25
+Error sintactico: Token inesperado ';' en linea 79, columna 35
+Error sintactico: Token inesperado 'int' en linea 81, columna 13
+Error sintactico: Token inesperado ')' en linea 81, columna 40
+Error sintactico: Token inesperado '"Hola"' en linea 83, columna 19
+Error sintactico: Token inesperado 'contador' en linea 91, columna 22
+Error sintactico: Token inesperado '}' en linea 93, columna 22
+Error sintactico: Token inesperado 'int' en linea 97, columna 19
+Error sintactico: Token inesperado '(' en linea 97, columna 56
+Error sintactico: Token inesperado 'd2' en linea 99, columna 24
+Error sintactico: Token inesperado '(' en linea 99, columna 56
+Error sintactico: Token inesperado '>' en linea 101, columna 18
+Error sintactico: Token inesperado '>' en linea 101, columna 46
+Error sintactico: Token inesperado ';' en linea 103, columna 57
+Error sintactico: Token inesperado '=' en linea 107, columna 35
+Error sintactico: Token inesperado 'paso' en linea 109, columna 26
+Error sintactico: Token inesperado '1' en linea 111, columna 33
+Error sintactico: Token inesperado 'int' en linea 113, columna 25
+Error sintactico: Token inesperado '=' en linea 117, columna 35
+Error sintactico: Fin de archivo inesperado 'EOF' en linea 122, columna 1
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 35
+Total errores lexicos: 0
