@@ -25,8 +25,16 @@ def p_instruccion(p):
                    | imprimir  
                    | while
                    | diccionario
-                   | funcion
+                   | funcion_estatica
+                   | lectura
+
+                   | BREAK SEMICOLON
+                   | CONTINUE SEMICOLON 
+                   | RETURN SEMICOLON
+                   | RETURN operando SEMICOLON
+                   
     """ #añadir mas instrucciones aqui
+
 
 def p_asignacion_variable_constante(p):
     """asignacion_variable : CONST tipo ID ASSIGN valor SEMICOLON
@@ -49,28 +57,74 @@ def p_valor(p):
             
     """
 
+def registrar_error(descripcion, lexema, linea, lexpos):
+    datos = lexico.lexer.lexdata
+    error = {
+        "descripcion": descripcion,
+        "lexema": lexema,
+        "linea": linea,
+        "columna": lexpos - datos.rfind('\n', 0, lexpos),
+    }
+    errores_sintacticos.append(error)
+    print(formatear_error(error))
+
 def p_imprimir(p):
     """imprimir : ID DOT ID LPAREN condicion RPAREN SEMICOLON
-                |  tipo ID ASSIGN ID DOT ID LPAREN condicion RPAREN SEMICOLON
-    
     """
+    # Validamos que sea Console.WriteLine(...)
+    if p[1] != "Console":
+        registrar_error("Se esperaba 'Console'", p[1], p.lineno(1), p.lexpos(1))
+    if p[3] != "WriteLine":
+        registrar_error("Se esperaba 'WriteLine'", p[3], p.lineno(3), p.lexpos(3))
+
+def p_lectura(p):
+    """lectura : tipo ID ASSIGN ID DOT ID LPAREN RPAREN SEMICOLON
+               | tipo ID ASSIGN tipo DOT ID LPAREN ID DOT ID LPAREN RPAREN RPAREN SEMICOLON
+    """
+    # Validamos Console.ReadLine() o Tipo.Parse(Console.ReadLine())
+    if len(p) == 10:
+        clase, metodo = 4, 6
+    else:
+        clase, metodo = 8, 10
+        if p[6] != "Parse":
+            registrar_error("Se esperaba 'Parse'", p[6], p.lineno(6), p.lexpos(6))
+    
+    if p[clase] != "Console":
+        registrar_error("Se esperaba 'Console'", p[clase], p.lineno(clase), p.lexpos(clase))
+    if p[metodo] != "ReadLine":
+        registrar_error("Se esperaba 'ReadLine'", p[metodo], p.lineno(metodo), p.lexpos(metodo))
 
 def p_while(p):
-    """while : WHILE LPAREN condicion RPAREN LBRACE instrucciones RBRACE
+    """while : WHILE LPAREN condicion RPAREN cuerpo_funciones
     """
 
+def p_cuerpo_funciones(p):
+    """cuerpo_funciones : LBRACE instrucciones RBRACE
+                        | LBRACE RBRACE
+    """
 
 def p_diccionario(p):
     """diccionario : DICTIONARY LESS tipo COMMA tipo GREATER ID ASSIGN NEW DICTIONARY LESS tipo COMMA tipo GREATER LPAREN RPAREN SEMICOLON
-    """ #Dictionary<tipo,tipo> dic = new Dictionary<tipo,tipo>();
+    """ 
+    #Dictionary<tipo,tipo> dic = new Dictionary<tipo,tipo>();
 
-def p_funcion(p):
-    """funcion : tipo ID LPAREN parametros RPAREN LBRACE instrucciones RBRACE
+def p_funcion_estatica(p):
+    """funcion_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN cuerpo_funciones
+    """
+
+def p_tipo_retorno_funcion(p):
+    """tipo_retorno_funcion : tipo
+                            | VOID
     """
 
 def p_condicion(p):
-    """condicion : valor operador_logico valor
-                 | valor
+    """condicion : operando operador_logico operando
+                 | operando
+    """
+
+def p_operando(p):
+    """operando : ID
+                | valor
     """
 
 def p_operador_logico(p):
@@ -79,13 +133,23 @@ def p_operador_logico(p):
                        | LESS_EQUAL
                        | GREATER_EQUAL
                        | NOT_EQUAL
+                       | EQUAL
     """
+
 def p_parametros(p):
-    """parametros : tipo ID COMMA parametros
-                  | tipo ID
+    """parametros : lista_parametros
                   | empty
     """
 
+def p_lista_parametros(p):
+    """lista_parametros : parametro COMMA lista_parametros
+                        | parametro
+    """
+
+def p_parametro(p):
+    """parametro : tipo ID
+                 | tipo ID ASSIGN valor
+    """
 def p_vacio(p):
     """empty : 
     """
