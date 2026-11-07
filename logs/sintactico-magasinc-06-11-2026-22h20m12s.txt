@@ -1,0 +1,17 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: magasinc
+Fecha: 06/11/2026 22:20:12
+Archivo: algoritmo_G_sintactico.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Error sintactico: Token inesperado '(' en linea 26, columna 28
+Error sintactico: Token inesperado '}' en linea 29, columna 1
+Error sintactico: Fin de archivo inesperado 'EOF' en linea 49, columna 30
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 3
+Total errores lexicos: 0

@@ -1,0 +1,17 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: magasinc
+Fecha: 06/11/2026 22:33:42
+Archivo: algoritmo_G_sintactico.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Error sintactico: Token inesperado 'if' en linea 45, columna 1
+Error sintactico: Token inesperado '}' en linea 45, columna 55
+Error sintactico: Token inesperado '20' en linea 48, columna 22
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 3
+Total errores lexicos: 0

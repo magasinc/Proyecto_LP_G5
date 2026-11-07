@@ -27,7 +27,12 @@ def p_instruccion(p):
                    | diccionario
                    | funcion_estatica
                    | lectura
-
+                   | declaracion_variable
+                   | asignacion_basica
+                   | if_else
+                   | arreglo
+                   | funcion_con_retorno
+                    
                    | BREAK SEMICOLON
                    | CONTINUE SEMICOLON 
                    | RETURN SEMICOLON
@@ -185,6 +190,55 @@ def formatear_error(error):
 # =========================================================
 # Geovanny Diaz - g30dl (Analizador Sintactico)
 # Analizador sintactico:
+# =========================================================
+
+
+# =========================================================
+# Mateo Gallegos - magasinc (Analizador Sintactico)
+# =========================================================
+
+# 1. Declaración de Variables: Declaración explícita con inicialización
+def p_declaracion_variable(p):
+    """declaracion_variable : tipo ID ASSIGN operando SEMICOLON
+                            | tipo ID ASSIGN operacion_aritmetica SEMICOLON
+    """
+
+# 1b. Asignación a una variable existente
+def p_asignacion_basica(p):
+    """asignacion_basica : ID ASSIGN operando SEMICOLON
+                         | ID ASSIGN operacion_aritmetica SEMICOLON
+    """
+
+def p_operacion_aritmetica(p):
+    """operacion_aritmetica : operando PLUS operando
+                            | operando MINUS operando
+                            | operando TIMES operando
+                            | operando DIVIDE operando
+    """
+
+# 2. Estructuras de Control: if / else
+def p_if_else(p):
+    """if_else : IF LPAREN condicion RPAREN cuerpo_funciones
+               | IF LPAREN condicion RPAREN cuerpo_funciones ELSE cuerpo_funciones
+    """
+
+# 3. Estructuras de Datos: Arreglo
+def p_arreglo(p):
+    """arreglo : tipo LBRACKET RBRACKET ID ASSIGN LBRACE elementos_arreglo RBRACE SEMICOLON
+    """
+
+def p_elementos_arreglo(p):
+    """elementos_arreglo : valor COMMA elementos_arreglo
+                         | valor
+    """
+
+# 4. Declaraciones de Funciones: Función con retorno y varios parámetros
+def p_funcion_con_retorno(p):
+    """funcion_con_retorno : STATIC tipo ID LPAREN lista_parametros RPAREN cuerpo_funciones
+    """
+
+# =========================================================
+# FIN APORTE: Mateo Gallegos - magasinc
 # =========================================================
 
 parser = yacc.yacc()
