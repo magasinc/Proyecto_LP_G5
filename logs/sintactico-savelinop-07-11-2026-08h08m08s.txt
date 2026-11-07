@@ -1,0 +1,17 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: savelinop
+Fecha: 07/11/2026 08:08:08
+Archivo: prueba_funciones_steven.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Error sintactico: Token inesperado ';' en linea 20, columna 17
+Error sintactico: Token inesperado '21' en linea 23, columna 23
+Error sintactico: Token inesperado ')' en linea 26, columna 19
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 3
+Total errores lexicos: 0
