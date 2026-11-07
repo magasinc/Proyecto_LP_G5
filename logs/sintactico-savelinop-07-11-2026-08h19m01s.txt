@@ -1,0 +1,18 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: savelinop
+Fecha: 07/11/2026 08:19:01
+Archivo: prueba_integracion_steven.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Error sintactico: Token inesperado ';' en linea 3, columna 16
+Error sintactico: Token inesperado ';' en linea 8, columna 18
+Error sintactico: Token inesperado '}' en linea 14, columna 1
+Error sintactico: Token inesperado ')' en linea 17, columna 26
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 4
+Total errores lexicos: 0

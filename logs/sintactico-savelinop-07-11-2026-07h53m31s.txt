@@ -1,0 +1,15 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: savelinop
+Fecha: 07/11/2026 07:53:31
+Archivo: prueba_funciones_steven.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 0
+Total errores lexicos: 0
