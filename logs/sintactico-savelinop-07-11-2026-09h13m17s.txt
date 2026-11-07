@@ -1,0 +1,15 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: savelinop
+Fecha: 07/11/2026 09:13:17
+Archivo: prueba_var_steven.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 0
+Total errores lexicos: 0
