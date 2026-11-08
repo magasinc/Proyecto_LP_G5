@@ -58,7 +58,7 @@ def p_instruccion(p):
 
 
 def p_asignacion_variable_constante(p):
-    """asignacion_variable : CONST tipo ID ASSIGN valor SEMICOLON
+    """asignacion_variable : CONST tipo ID ASSIGN expresion SEMICOLON
     """
 # Declaracion de variables con tipo explicito.
 # Ejemplos:
@@ -69,7 +69,6 @@ def p_asignacion_variable_constante(p):
 def p_declaracion_tipada_compartida(p):
     """asignacion_variable : tipo ID ASSIGN expresion SEMICOLON
     """
-
 # Asignacion a variables existentes.
 # Ejemplos:
 # edad = 22;
