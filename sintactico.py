@@ -2,6 +2,16 @@ import ply.yacc as yacc
 from lexer import tokens, errores_lexicos
 import lexer as lexico
 
+
+precedence = (
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('nonassoc', 'COMPARACION'),
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE', 'MOD'),
+    ('right', 'NOT'),
+)
+
 # =========================================================
 # Geovanny Diaz - g30dl (Analizador Sintactico)
 # Analizador sintactico:
@@ -22,6 +32,7 @@ def p_instrucciones(p):
 
 def p_instruccion(p):
     """instruccion : asignacion_variable
+                   | declaracion_var
                    | imprimir  
                    | while
                    | diccionario
@@ -31,19 +42,48 @@ def p_instruccion(p):
                    | asignacion_basica
                    | if_else
                    | arreglo
+<<<<<<< HEAD
                    
                     
+=======
+                   | funcion_con_retorno
+                                       | for
+                   | incremento_decremento
+                   | lista_generica
+                   | llamada_funcion
+
+>>>>>>> f650af3ff56795f44000ca5d0cbb780167034205
                    | BREAK SEMICOLON
                    | CONTINUE SEMICOLON 
                    | RETURN SEMICOLON
-                   | RETURN operando SEMICOLON
+                   | RETURN expresion SEMICOLON
+                   
                    
     """ #añadir mas instrucciones aqui
 
 
 def p_asignacion_variable_constante(p):
-    """asignacion_variable : CONST tipo ID ASSIGN valor SEMICOLON
+    """asignacion_variable : CONST tipo ID ASSIGN expresion SEMICOLON
     """
+# Declaracion de variables con tipo explicito.
+# Ejemplos:
+# int edad = 21;
+# double promedio = 8.5;
+# bool activo = true;
+
+def p_declaracion_tipada_compartida(p):
+    """asignacion_variable : tipo ID ASSIGN expresion SEMICOLON
+    """
+# Asignacion a variables existentes.
+# Ejemplos:
+# edad = 22;
+# promedio = promedio + 1;
+# activo = edad >= 18;
+
+def p_asignacion_simple_compartida(p):
+    """asignacion_variable : ID ASSIGN expresion SEMICOLON
+    """
+
 
 def p_tipo_variable(p):
     """tipo : INT
@@ -123,8 +163,7 @@ def p_tipo_retorno_funcion(p):
     """
 
 def p_condicion(p):
-    """condicion : operando operador_logico operando
-                 | operando
+    """condicion : expresion
     """
 
 def p_operando(p):
@@ -235,5 +274,220 @@ def p_elementos_arreglo(p):
 # =========================================================
 # FIN APORTE: Mateo Gallegos - magasinc
 # =========================================================
+
+
+# =========================================================
+# Mateo Gallegos - magasinc (Analizador Sintactico)
+# =========================================================
+
+# 1. Declaración de Variables: Declaración explícita con inicialización
+
+# 1b. Asignación a una variable existente
+
+
+# 2. Estructuras de Control: if / else
+
+# 3. Estructuras de Datos: Arreglo
+
+
+# 4. Declaraciones de Funciones: Función con retorno y varios parámetros
+
+# =========================================================
+# FIN APORTE: Mateo Gallegos - magasinc
+# =========================================================
+
+
+
+# =========================================================
+# Steven Avelino - savelinop
+# Avance 2 - Analizador Sintactico
+
+# Regla 1: Declaracion de variables con tipo inferido (var)
+# Ejemplos:
+# var edad = 21;
+# var nombre = "Carlos";
+# var activo = true;
+
+def p_declaracion_var(p):
+    """declaracion_var : VAR ID ASSIGN expresion SEMICOLON
+    """
+
+# =========================================================
+
+# Regla 2: Expresiones aritmeticas
+# =========================================================
+
+# Suma y resta
+def p_expresion(p):
+    """expresion : expresion PLUS termino
+                 | expresion MINUS termino
+                 | termino
+    """
+
+# Multiplicacion, division y modulo
+def p_termino(p):
+    """termino : termino TIMES factor
+               | termino DIVIDE factor
+               | termino MOD factor
+               | factor
+    """
+
+# Valores, identificadores y agrupacion con parentesis
+def p_factor(p):
+    """factor : operando
+              | LPAREN expresion RPAREN
+    """
+# Regla 3: Expresiones booleanas
+# =========================================================
+
+# Conectores logicos AND (&&) y OR (||)
+def p_expresion_conectores(p):
+    """expresion : expresion AND expresion
+                 | expresion OR expresion
+    """
+
+# Comparaciones: >, <, >=, <=, ==, !=
+# Reutiliza operador_logico definido por Geovanny.
+def p_expresion_comparacion(p):
+    """expresion : expresion operador_logico expresion %prec COMPARACION
+    """
+
+# Negacion logica (!)
+def p_expresion_negacion(p):
+    """expresion : NOT expresion
+    """
+
+
+# Regla 4: Estructura de control FOR
+# =========================================================
+
+# Estructura principal del ciclo for
+def p_for_steven(p):
+    """for : FOR LPAREN inicio_for SEMICOLON condicion SEMICOLON actualizacion_for RPAREN cuerpo_funciones
+    """
+
+# Inicializacion del ciclo
+def p_inicio_for(p):
+    """inicio_for : tipo ID ASSIGN expresion
+                  | VAR ID ASSIGN expresion
+                  | ID ASSIGN expresion
+                  | empty
+    """
+
+# Actualizacion del contador
+def p_actualizacion_for(p):
+    """actualizacion_for : ID INCREMENT
+                         | ID DECREMENT
+                         | INCREMENT ID
+                         | DECREMENT ID
+                         | ID ASSIGN expresion
+    """
+
+# Incremento y decremento como instrucciones
+def p_incremento_decremento(p):
+    """incremento_decremento : ID INCREMENT SEMICOLON
+                             | ID DECREMENT SEMICOLON
+                             | INCREMENT ID SEMICOLON
+                             | DECREMENT ID SEMICOLON
+    """
+
+# Regla 5: Estructura de datos List<T>
+# =========================================================
+
+# Declaracion de listas genericas en C#
+# Ejemplo 1: List<int> numeros = new List<int>();
+# Ejemplo 2: List<int> numeros = new List<int> {1, 2, 3};
+
+def p_lista_generica(p):
+    """lista_generica : LIST LESS tipo GREATER ID ASSIGN NEW LIST LESS tipo GREATER LPAREN RPAREN SEMICOLON
+                      | LIST LESS tipo GREATER ID ASSIGN NEW LIST LESS tipo GREATER LBRACE elementos_lista RBRACE SEMICOLON
+    """
+
+# Permite listas vacias o con varios elementos
+def p_elementos_lista(p):
+    """elementos_lista : expresion
+                       | elementos_lista COMMA expresion
+                       | empty
+    """
+
+# Regla 7: Llamadas a funciones
+# =========================================================
+
+# Llamada a funcion como instruccion
+def p_llamada_funcion(p):
+    """llamada_funcion : llamada SEMICOLON
+    """
+
+# Nombre de funcion y sus argumentos
+def p_llamada(p):
+    """llamada : ID LPAREN argumentos RPAREN
+    """
+
+# Argumentos opcionales
+def p_argumentos(p):
+    """argumentos : lista_argumentos
+                  | empty
+    """
+
+# Uno o varios argumentos separados por coma
+def p_lista_argumentos(p):
+    """lista_argumentos : expresion
+                        | lista_argumentos COMMA expresion
+    """
+
+# Permite llamadas dentro de expresiones:
+# var resultado = Sumar(3, 4);
+def p_factor_llamada(p):
+    """factor : llamada
+    """
+
+
+# Ejemplos:
+# static void Saludar() {
+#     Console.WriteLine("Hola");
+# }
+#
+# static void MostrarNombre(string nombre) {
+#     Console.WriteLine(nombre);
+# }
+
+# Reutilizamos las reglas del grupo:
+# - parametros
+# - cuerpo_funciones
+# - imprimir
+#
+# Esto permite funciones con y sin parametros.
+
+# Reutilizamos:
+# - LIST: definido por Steven en el lexer
+# - NEW: definido por Geovanny en el lexer
+# - tipo: definido en el sintactico del grupo
+# - expresion: reglas aritmeticas y booleanas de Steven
+# - empty: regla existente del proyecto
+
+
+
+# Las expresiones booleanas tambien permiten
+# operaciones aritmeticas y agrupaciones.
+#
+# Ejemplos:
+# edad >= 18
+# edad >= 18 && activo
+# activo || autorizado
+# !activo
+# (edad >= 18 && activo) || autorizado
+
+# =================================
+
+# Se reutiliza la regla 'operando' de Geovanny.
+# La estructura de la gramatica respeta la precedencia:
+# 1. Parentesis
+# 2. Multiplicacion, division y modulo
+# 3. Suma y resta
+
+# =========================================================
+
+
+
 
 parser = yacc.yacc()
