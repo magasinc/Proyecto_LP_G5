@@ -2,6 +2,19 @@ import ply.yacc as yacc
 from lexer import tokens, errores_lexicos
 import lexer as lexico
 
+#GD-AnalizadorSemantico
+tabla_simbolos = {
+    "variables":{},
+    "tipos":{ 
+        "funciones_definidas":["Console", "WriteLine", "ReadLine", "Parse"],
+        "tipos_numericos":["int", "double", "char"] },
+    "funciones":{
+        "retorno_bucles": ["break", "continue"],
+        "retorno_funciones": ["return"]
+    },
+    "contexto":{"bucles":0, "funciones":0}
+    }
+#Añadir mas elementos a la tabla de simbolos segun se requiera
 
 precedence = (
     ('left', 'OR'),
@@ -16,10 +29,6 @@ precedence = (
 # Geovanny Diaz - g30dl (Analizador Sintactico)
 # Analizador sintactico:
 # =========================================================
-
-# Errores encontrados en cada analisis; main.py los lee para el log.
-# Cada error es un dict con: descripcion, lexema, linea y columna.
-errores_sintacticos = []
 
 def p_programa(p):
     """programa : instrucciones 
@@ -43,7 +52,7 @@ def p_instruccion(p):
                    | if_else
                    | arreglo
                    | funcion_con_retorno
-                                       | for
+                   | for
                    | incremento_decremento
                    | lista_generica
                    | llamada_funcion
@@ -51,15 +60,26 @@ def p_instruccion(p):
                    | BREAK SEMICOLON
                    | CONTINUE SEMICOLON 
                    | RETURN SEMICOLON
-                   | RETURN expresion SEMICOLON
-                   
-                   
+                   | RETURN expresion SEMICOLON           
     """ #añadir mas instrucciones aqui
+    
+    #GD-AnalizadorSemantico
+    # Saber si una instruccion es un break o continue y si esta dentro de un bucle.
+    nombre = p[1]
+    if nombre in tabla_simbolos["funciones"]["retorno_bucles"]:
+        if tabla_simbolos["contexto"]["bucles"] == 0:
+            registrar_error_semantico(
+                "Sentencia fuera de un bucle", p[1], p.lineno(1), p.lexpos(1))
 
+    if nombre in tabla_simbolos["funciones"]["retorno_funciones"]:
+        if tabla_simbolos["contexto"]["funciones"] == 0:
+            registrar_error_semantico(
+                "Sentencia fuera de una funcion", p[1], p.lineno(1), p.lexpos(1))
 
 def p_asignacion_variable_constante(p):
     """asignacion_variable : CONST tipo ID ASSIGN expresion SEMICOLON
     """
+    registrar_variable(p[3], p[2], True)  #GD-AnalizadorSemantico
 # Declaracion de variables con tipo explicito.
 # Ejemplos:
 # int edad = 21;
@@ -69,6 +89,7 @@ def p_asignacion_variable_constante(p):
 def p_declaracion_tipada_compartida(p):
     """asignacion_variable : tipo ID ASSIGN expresion SEMICOLON
     """
+    registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
 # Asignacion a variables existentes.
 # Ejemplos:
 # edad = 22;
@@ -79,7 +100,6 @@ def p_asignacion_simple_compartida(p):
     """asignacion_variable : ID ASSIGN expresion SEMICOLON
     """
 
-
 def p_tipo_variable(p):
     """tipo : INT
             | DOUBLE
@@ -87,62 +107,82 @@ def p_tipo_variable(p):
             | BOOL
             | CHAR
     """
+    p[0] = p[1]  #GD-AnalizadorSemantico
+
 def p_valor(p):
     """valor : INT_LIT
             | DOUBLE_LIT
             | STRING_LIT
             | CHAR_LIT
             | TRUE
-            | FALSE
-            
+            | FALSE    
     """
+    #GD-AnalizadorSemantico
+    if p.slice[1].type == "INT_LIT":
+        p[0] = "int"
+    elif p.slice[1].type == "DOUBLE_LIT":
+        p[0] = "double"
+    elif p.slice[1].type == "STRING_LIT":
+        p[0] = "string"
+    elif p.slice[1].type == "CHAR_LIT":
+        p[0] = "char"
+    else:
+        p[0] = "bool"      # TRUE o FALSE
 
-def registrar_error(descripcion, lexema, linea, lexpos):
-    datos = lexico.lexer.lexdata
-    error = {
-        "descripcion": descripcion,
-        "lexema": lexema,
-        "linea": linea,
-        "columna": lexpos - datos.rfind('\n', 0, lexpos),
-    }
-    errores_sintacticos.append(error)
-    print(formatear_error(error))
+#GD-AnalizadorSemantico
+def registrar_variable(nombre, tipo, constante):
+    tabla_simbolos["variables"][nombre] = {"tipo": tipo, "const": constante}
 
 def p_imprimir(p):
     """imprimir : ID DOT ID LPAREN condicion RPAREN SEMICOLON
     """
-    # Validamos que sea Console.WriteLine(...)
-    if p[1] != "Console":
-        registrar_error("Se esperaba 'Console'", p[1], p.lineno(1), p.lexpos(1))
-    if p[3] != "WriteLine":
-        registrar_error("Se esperaba 'WriteLine'", p[3], p.lineno(3), p.lexpos(3))
+
+    # Los nombres de Console.WriteLine(...) deben estar definidos en la tabla de simbolos
+    for i in (1, 3):
+        if p[i] not in tabla_simbolos["tipos"]["funciones_definidas"]:
+            registrar_error("Funcion no definida", p[i], p.lineno(i), p.lexpos(i))
 
 def p_lectura(p):
     """lectura : tipo ID ASSIGN ID DOT ID LPAREN RPAREN SEMICOLON
                | tipo ID ASSIGN tipo DOT ID LPAREN ID DOT ID LPAREN RPAREN RPAREN SEMICOLON
     """
-    # Validamos Console.ReadLine() o Tipo.Parse(Console.ReadLine())
-    if len(p) == 10:
-        clase, metodo = 4, 6
-    else:
-        clase, metodo = 8, 10
-        if p[6] != "Parse":
-            registrar_error("Se esperaba 'Parse'", p[6], p.lineno(6), p.lexpos(6))
-    
-    if p[clase] != "Console":
-        registrar_error("Se esperaba 'Console'", p[clase], p.lineno(clase), p.lexpos(clase))
-    if p[metodo] != "ReadLine":
-        registrar_error("Se esperaba 'ReadLine'", p[metodo], p.lineno(metodo), p.lexpos(metodo))
+
+    # Los nombres de Console.ReadLine() o Tipo.Parse(Console.ReadLine()) deben estar en la tabla
+    nombres = (4, 6) if len(p) == 10 else (6, 8, 10)
+    for i in nombres:
+        if p[i] not in tabla_simbolos["tipos"]["funciones_definidas"]:
+            registrar_error("Funcion no definida", p[i], p.lineno(i), p.lexpos(i))
+    # La variable leida queda declarada con el tipo indicado.
+    registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
 
 def p_while(p):
-    """while : WHILE LPAREN condicion RPAREN cuerpo_funciones
+    """while : WHILE LPAREN condicion RPAREN cuerpo_bucle
     """
+    tabla_simbolos["contexto"]["bucles"] -= 1  #GD-AnalizadorSemantico
 
+#GD-AnalizadorSemantico
+def p_cuerpo_bucle(p):
+    """cuerpo_bucle : LBRACE abrir_bucle instrucciones RBRACE
+                    | LBRACE abrir_bucle RBRACE
+    """
+#while(condicion){ }
+
+#GD-AnalizadorSemantico
+def p_abrir_bucle(p):
+    """abrir_bucle : """
+    tabla_simbolos["contexto"]["bucles"] += 1
+
+#GD-AnalizadorSemantico
 def p_cuerpo_funciones(p):
-    """cuerpo_funciones : LBRACE instrucciones RBRACE
-                        | LBRACE RBRACE
+    """cuerpo_funciones : LBRACE abrir_funcion instrucciones RBRACE
+                        | LBRACE abrir_funcion RBRACE
     """
 
+#GD-AnalizadorSemantico
+def p_abrir_funcion(p):
+    """abrir_funcion : """
+    tabla_simbolos["contexto"]["funciones"] += 1
+    
 def p_diccionario(p):
     """diccionario : DICTIONARY LESS tipo COMMA tipo GREATER ID ASSIGN NEW DICTIONARY LESS tipo COMMA tipo GREATER LPAREN RPAREN SEMICOLON
     """ 
@@ -151,6 +191,7 @@ def p_diccionario(p):
 def p_funcion_estatica(p):
     """funcion_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN cuerpo_funciones
     """
+    tabla_simbolos["contexto"]["funciones"] -= 1  #GD-AnalizadorSemantico
 
 def p_tipo_retorno_funcion(p):
     """tipo_retorno_funcion : tipo
@@ -165,6 +206,16 @@ def p_operando(p):
     """operando : ID
                 | valor
     """
+    #GD-AnalizadorSemantico
+    # Un literal trae su tipo; un ID lo trae de la tabla.
+    if p.slice[1].type == "ID":
+        variable = tabla_simbolos["variables"].get(p[1])
+        if variable is not None:
+            p[0] = variable["tipo"]
+        else:
+            p[0] = None
+    else:
+        p[0] = p[1]
 
 def p_operador_logico(p):
     """operador_logico : LESS
@@ -189,12 +240,27 @@ def p_parametro(p):
     """parametro : tipo ID
                  | tipo ID ASSIGN valor
     """
+
 def p_vacio(p):
     """empty : 
     """
 
+# Cada error es un dict con: descripcion, lexema, linea y columna.
+errores_sintacticos = []
+
 # PLY llama a p_error cuando un token no encaja en ninguna regla.
 # Si p es None, el archivo termino antes de lo esperado.
+def registrar_error(descripcion, lexema, linea, lexpos):
+    datos = lexico.lexer.lexdata
+    error = {
+        "descripcion": descripcion,
+        "lexema": lexema,
+        "linea": linea,
+        "columna": lexpos - datos.rfind('\n', 0, lexpos),
+    }
+    errores_sintacticos.append(error)
+    print(formatear_error(error))
+
 def p_error(p):
     if p is None:
         datos = lexico.lexer.lexdata
@@ -221,10 +287,56 @@ def formatear_error(error):
         f"'{error['lexema']}' en linea {error['linea']}, "
         f"columna {error['columna']}"
     )
+
+#GD-AnalizadorSemantico
+# Errores semanticos: misma estructura que los sintacticos
+# (descripcion, lexema, linea y columna).
+errores_semanticos = []
+
+def reiniciar_semantico():
+    """Limpia errores y contexto; un error de sintaxis dentro de un bucle deja el contador sucio."""
+    errores_semanticos.clear()
+    tabla_simbolos["variables"].clear()
+    tabla_simbolos["contexto"]["bucles"] = 0
+    tabla_simbolos["contexto"]["funciones"] = 0
+
+def registrar_error_semantico(descripcion, lexema, linea, lexpos):
+    datos = lexico.lexer.lexdata
+    error = {
+        "descripcion": descripcion,
+        "lexema": lexema,
+        "linea": linea,
+        "columna": lexpos - datos.rfind('\n', 0, lexpos),
+    }
+    errores_semanticos.append(error)
+    print(formatear_error_semantico(error))
+
+def formatear_error_semantico(error):
+    return (
+        f"Error semantico: {error['descripcion']} "
+        f"'{error['lexema']}' en linea {error['linea']}, "
+        f"columna {error['columna']}"
+    )
+
+#GD-AnalizadorSemantico
+def p_casting(p):
+    """factor : LPAREN tipo RPAREN factor
+    """
+    destino, origen = p[2], p[4]
+    
+    # Si el tipo del operando no se conoce todavia (None) no se marca error.
+    if origen is not None and origen != destino:
+        if not (origen in tabla_simbolos["tipos"]["tipos_numericos"] and destino in tabla_simbolos["tipos"]["tipos_numericos"]):
+            registrar_error_semantico(
+                f"No se puede convertir explicitamente '{origen}' a '{destino}' mediante casting", destino, p.lineno(1), p.lexpos(1))
+    p[0] = destino
+
 # =========================================================
 # Geovanny Diaz - g30dl (Analizador Sintactico)
 # Analizador sintactico:
 # =========================================================
+
+
 
 
 # =========================================================
@@ -236,6 +348,7 @@ def p_declaracion_variable(p):
     """declaracion_variable : tipo ID ASSIGN operando SEMICOLON
                             | tipo ID ASSIGN operacion_aritmetica SEMICOLON
     """
+    registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
 
 # 1b. Asignación a una variable existente
 def p_asignacion_basica(p):
@@ -268,7 +381,7 @@ def p_elementos_arreglo(p):
 
 # 4. Declaraciones de Funciones: Función con retorno y varios parámetros
 def p_funcion_con_retorno(p):
-    """funcion_con_retorno : STATIC tipo ID LPAREN lista_parametros RPAREN cuerpo_funciones
+    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN cuerpo_funciones
     """
 
 # =========================================================
@@ -337,6 +450,11 @@ def p_factor(p):
     """factor : operando
               | LPAREN expresion RPAREN
     """
+    #GD-AnalizadorSemantico
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[2]
 # Regla 3: Expresiones booleanas
 # =========================================================
 
@@ -363,8 +481,9 @@ def p_expresion_negacion(p):
 
 # Estructura principal del ciclo for
 def p_for_steven(p):
-    """for : FOR LPAREN inicio_for SEMICOLON condicion SEMICOLON actualizacion_for RPAREN cuerpo_funciones
+    """for : FOR LPAREN inicio_for SEMICOLON condicion SEMICOLON actualizacion_for RPAREN cuerpo_bucle
     """
+    tabla_simbolos["contexto"]["bucles"] -= 1  #GD-AnalizadorSemantico
 
 # Inicializacion del ciclo
 def p_inicio_for(p):

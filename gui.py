@@ -45,10 +45,22 @@ def ejecutar_sintactico(codigo):
     """Devuelve (tokens, errores_lexicos, errores_sintacticos)."""
     tokens, err_lex = lexico.analizar(codigo)
     sintactico.errores_sintacticos.clear()
+    sintactico.reiniciar_semantico()
     # El parser consume el mismo lexer global, por eso se reinicia la entrada.
     lexico.lexer.lineno = 1
     sintactico.parser.parse(codigo, lexer=lexico.lexer)
     return tokens, err_lex, list(sintactico.errores_sintacticos)
+
+
+#GD-AnalizadorSemantico
+def ejecutar_semantico(codigo):
+    """Devuelve (tokens, errores_lexicos, errores_sintacticos, errores_semanticos).
+
+    Las reglas semanticas se evaluan durante el parseo, asi que se reutiliza
+    ejecutar_sintactico y se leen los errores semanticos que dejo registrados.
+    """
+    tokens, err_lex, err_sin = ejecutar_sintactico(codigo)
+    return tokens, err_lex, err_sin, list(sintactico.errores_semanticos)
 
 
 class Aplicacion(tk.Tk):
@@ -397,12 +409,12 @@ class Aplicacion(tk.Tk):
         self._mostrar(tokens, err_lex, err_sin, "sintáctico", "sintactico")
 
     def analizar_completo(self):
-        # El semantico aun no existe; "completo" encadena lo disponible.
-        tokens, err_lex, err_sin = ejecutar_sintactico(self._codigo())
-        self._mostrar(tokens, err_lex, err_sin, "completo", "completo")
+        tokens, err_lex, err_sin, err_sem = ejecutar_semantico(self._codigo())
+        self._mostrar(tokens, err_lex, err_sin, "completo", "completo", err_sem)
 
     def analizar_semantico(self):
-        messagebox.showinfo("Semántico", "El análisis semántico aún no está implementado.")
+        tokens, err_lex, err_sin, err_sem = ejecutar_semantico(self._codigo())
+        self._mostrar(tokens, err_lex, err_sin, "semántico", "semantico", err_sem)
 
     # ------------------------------------------------------ resultados
     def _vaciar_resultados(self):
@@ -414,7 +426,7 @@ class Aplicacion(tk.Tk):
         for i, valores in enumerate(filas):
             tabla.insert("", "end", values=valores, tags=("par",) if i % 2 else ())
 
-    def _mostrar(self, tokens, err_lex, err_sin, modo, clave):
+    def _mostrar(self, tokens, err_lex, err_sin, modo, clave, err_sem=()):
         self._vaciar_resultados()
         self._marcar_analisis(clave)
 
@@ -432,7 +444,8 @@ class Aplicacion(tk.Tk):
                        [(n, l, c) for n, (l, c) in simbolos.items()])
 
         errores = [("Léxico", "LÉXICO", e) for e in err_lex] + \
-                  [("Sintáctico", "SINTAXIS", e) for e in err_sin]
+                  [("Sintáctico", "SINTAXIS", e) for e in err_sin] + \
+                  [("Semántico", "SEMÁNTICO", e) for e in err_sem]
         self._insertar(self.tabla_errores, [
             (fase, e["descripcion"], e["lexema"], e["linea"], e["columna"])
             for fase, _, e in errores])
@@ -456,7 +469,8 @@ class Aplicacion(tk.Tk):
         resumen = (f"Análisis {modo}\n\nTokens: {len(tokens)}\n"
                    f"Símbolos distintos: {len(simbolos)}\n"
                    f"Errores léxicos: {len(err_lex)}\n"
-                   f"Errores sintácticos: {len(err_sin)}\n")
+                   f"Errores sintácticos: {len(err_sin)}\n"
+                   f"Errores semánticos: {len(err_sem)}\n")
         self.texto_resumen.configure(state="normal")
         self.texto_resumen.delete("1.0", "end")
         self.texto_resumen.insert("1.0", resumen)
@@ -465,7 +479,8 @@ class Aplicacion(tk.Tk):
         plural = lambda n: f"{n} error" if n == 1 else f"{n} errores"
         self.estado.configure(
             text=f"Estado: análisis {modo} con {plural(len(err_sin))}  •  "
-                 f"Léxico: {plural(len(err_lex))}")
+                 f"Léxico: {plural(len(err_lex))}  •  "
+                 f"Semántico: {plural(len(err_sem))}")
 
     def _ir_a_linea(self, tabla):
         sel = tabla.selection()

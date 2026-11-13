@@ -102,6 +102,7 @@ def ejecutar_sintactico(codigo, ruta_algoritmo, desarrollador):
     )
 
     errores_sintacticos.clear()
+    sintactico.reiniciar_semantico()
     lexico.errores_lexicos.clear()
     lexico.lexer.lineno = 1
 
@@ -139,15 +140,79 @@ def ejecutar_sintactico(codigo, ruta_algoritmo, desarrollador):
     return 0
 
 
+#GD-AnalizadorSemantico
+def ejecutar_semantico(codigo, ruta_algoritmo, desarrollador):
+    sintactico = cargar_sintactico()
+    if sintactico is None:
+        return 1
+
+    ahora = datetime.now()
+    salida_log = encabezado(
+        "ANALISIS SEMANTICO - C#", desarrollador, ruta_algoritmo, ahora
+    )
+
+    sintactico.errores_sintacticos.clear()
+    sintactico.reiniciar_semantico()
+    lexico.errores_lexicos.clear()
+    lexico.lexer.lineno = 1
+
+    # Las reglas semanticas se evaluan durante el parseo.
+    print("\n--- ANALISIS SEMANTICO ---")
+    sintactico.parser.parse(codigo, lexer=lexico.lexer)
+
+    errores_semanticos = sintactico.errores_semanticos
+    salida_log.append("ERRORES SEMANTICOS:")
+    if errores_semanticos:
+        salida_log.extend(
+            sintactico.formatear_error_semantico(e) for e in errores_semanticos
+        )
+    else:
+        print("Sin errores semanticos")
+        salida_log.append("Sin errores semanticos")
+
+    salida_log.append("")
+    salida_log.append("ERRORES SINTACTICOS ENCONTRADOS DURANTE EL ANALISIS:")
+    if sintactico.errores_sintacticos:
+        salida_log.extend(
+            sintactico.formatear_error(e) for e in sintactico.errores_sintacticos
+        )
+    else:
+        salida_log.append("Sin errores sintacticos")
+
+    salida_log.append("")
+    salida_log.append("ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:")
+    if lexico.errores_lexicos:
+        salida_log.extend(
+            lexico.formatear_error(e) for e in lexico.errores_lexicos
+        )
+    else:
+        salida_log.append("Sin errores lexicos")
+
+    salida_log.append("")
+    salida_log.append(f"Total errores semanticos: {len(errores_semanticos)}")
+    salida_log.append(f"Total errores sintacticos: {len(sintactico.errores_sintacticos)}")
+    salida_log.append(f"Total errores lexicos: {len(lexico.errores_lexicos)}")
+
+    ruta_log = guardar_log("semantico", desarrollador, ahora, salida_log)
+
+    print("\n--- RESULTADO ---")
+    print(f"Errores semanticos: {len(errores_semanticos)}")
+    print(f"Errores sintacticos: {len(sintactico.errores_sintacticos)}")
+    print(f"Errores lexicos: {len(lexico.errores_lexicos)}")
+    print(f"Log generado: {ruta_log}")
+    return 0
+
+
 ANALISIS = {
     "lexico": ejecutar_lexico,
     "sintactico": ejecutar_sintactico,
+    "semantico": ejecutar_semantico,
 }
 
 
 def main():
     argumentos = argparse.ArgumentParser(
-        description="Analizador de codigo C# (lexico y sintactico)."
+        description="Analizador de codigo C# (lexico, sintactico y semantico)."
     )
     argumentos.add_argument("analisis", choices=ANALISIS, help="analisis a ejecutar")
     argumentos.add_argument("archivo", help="ruta del algoritmo .cs")
