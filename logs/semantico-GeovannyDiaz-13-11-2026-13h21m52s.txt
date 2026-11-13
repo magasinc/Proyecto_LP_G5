@@ -1,0 +1,26 @@
+==========================================
+ANALISIS SEMANTICO - C#
+Desarrollador: GeovannyDiaz
+Fecha: 13/11/2026 13:21:52
+Archivo: algoritmo_GD_semantico_errores.cs
+==========================================
+
+ERRORES SEMANTICOS:
+Error semantico: Sentencia fuera de un bucle 'break' en linea 13, columna 1
+Error semantico: Sentencia fuera de un bucle 'continue' en linea 15, columna 1
+Error semantico: Sentencia fuera de una funcion 'return' en linea 17, columna 1
+Error semantico: Sentencia fuera de un bucle 'break' en linea 20, columna 5
+Error semantico: Sentencia fuera de un bucle 'break' en linea 24, columna 5
+Error semantico: No se puede convertir explicitamente 'string' a 'int' mediante casting 'int' en linea 34, columna 11
+Error semantico: No se puede convertir explicitamente 'int' a 'bool' mediante casting 'bool' en linea 36, columna 16
+Error semantico: No se puede convertir explicitamente 'bool' a 'int' mediante casting 'int' en linea 38, columna 17
+
+ERRORES SINTACTICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores semanticos: 8
+Total errores sintacticos: 0
+Total errores lexicos: 0
