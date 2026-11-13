@@ -27,15 +27,26 @@ if (edadEstudiante >= limiteEdad) {
     Console.WriteLine("Menor");
 }
 
+// Prueba Error #1 y #2
+int t = a + b + c;
+x = a * b + c;
+
+// Prueba Error #3
+static int F() { return 1; }
+
+// Prueba Error #5
+if (a) { } else if (b) { } else { }
+
+
 // ---------------------------------------------------------
 // PARTE 2: CASOS INVÁLIDOS (Errores sintácticos intencionales)
 // ---------------------------------------------------------
 
 // ERROR A: Falta el punto y coma (;) al final
-int puntaje = 100
+//int puntaje = 100
 
 // ERROR B: Falta el paréntesis de apertura en la condición del if
-if edadEstudiante > 15) { Console.WriteLine("Error"); }
+//if edadEstudiante > 15) { Console.WriteLine("Error"); }
 
 // ERROR C: Falta la coma (,) separadora en el arreglo
-int[] valores = { 10 20 };
+//int[] valores = { 10 20 };

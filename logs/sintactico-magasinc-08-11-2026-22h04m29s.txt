@@ -1,0 +1,15 @@
+==========================================
+ANALISIS SINTACTICO - C#
+Desarrollador: magasinc
+Fecha: 08/11/2026 22:04:29
+Archivo: algoritmo_G_sintactico.cs
+==========================================
+
+ERRORES SINTACTICOS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores sintacticos: 0
+Total errores lexicos: 0

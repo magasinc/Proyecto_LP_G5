@@ -51,6 +51,8 @@ def p_instruccion(p):
                    | asignacion_basica
                    | if_else
                    | arreglo
+                   
+                    
                    | funcion_con_retorno
                    | for
                    | incremento_decremento
@@ -343,30 +345,30 @@ def p_casting(p):
 # Mateo Gallegos - magasinc (Analizador Sintactico)
 # =========================================================
 
-# 1. Declaración de Variables: Declaración explícita con inicialización
+# 1. Declaración y asignación básica (Ahora usan 'expresion')
 def p_declaracion_variable(p):
-    """declaracion_variable : tipo ID ASSIGN operando SEMICOLON
-                            | tipo ID ASSIGN operacion_aritmetica SEMICOLON
+    """declaracion_variable : tipo ID ASSIGN expresion SEMICOLON
     """
     registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
 
-# 1b. Asignación a una variable existente
 def p_asignacion_basica(p):
-    """asignacion_basica : ID ASSIGN operando SEMICOLON
-                         | ID ASSIGN operacion_aritmetica SEMICOLON
+    """asignacion_basica : ID ASSIGN expresion SEMICOLON
     """
 
-def p_operacion_aritmetica(p):
-    """operacion_aritmetica : operando PLUS operando
-                            | operando MINUS operando
-                            | operando TIMES operando
-                            | operando DIVIDE operando
+# Regla para soportar a + b + c + ...
+def p_expresion(p):
+    """expresion : operando PLUS expresion
+                 | operando MINUS expresion
+                 | operando TIMES expresion
+                 | operando DIVIDE expresion
+                 | operando
     """
 
-# 2. Estructuras de Control: if / else
+# 2. Estructuras de Control: if / else (Con soporte else if)
 def p_if_else(p):
     """if_else : IF LPAREN condicion RPAREN cuerpo_funciones
                | IF LPAREN condicion RPAREN cuerpo_funciones ELSE cuerpo_funciones
+               | IF LPAREN condicion RPAREN cuerpo_funciones ELSE if_else
     """
 
 # 3. Estructuras de Datos: Arreglo

@@ -50,7 +50,7 @@ def t_DOUBLE_LIT(t):
     t.value = float(t.value)
     return t
 
-# Geovanny: estas dos reglas de error van antes para atrapar el 
+# Estas dos reglas de error van antes para atrapar el 
 # lexema si está implementado.
 def t_ERROR_DECIMAL(t):
     r'\d+\.(?!\d)'
