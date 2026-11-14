@@ -15,7 +15,7 @@ tabla_simbolos = {
     "contexto":{"bucles":0, "funciones":0}
     }
 #Añadir mas elementos a la tabla de simbolos segun se requiera
-
+start = "programa"
 precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
@@ -24,6 +24,143 @@ precedence = (
     ('left', 'TIMES', 'DIVIDE', 'MOD'),
     ('right', 'NOT'),
 )
+
+# =========================================================
+# INICIO APORTE: Steven Avelino - savelinop
+# AVANCE 3 - ANALIZADOR SEMANTICO
+# Regla 3: Operaciones permitidas y compatibilidad de tipos
+# =========================================================
+
+def validar_operacion(operador, izquierda, derecha, linea, lexpos):
+
+    # No validar tipos que todavia no se conocen
+    if izquierda is None or derecha is None:
+        return None
+
+    numericos = ("int", "double", "char")
+
+    # Concatenacion de cadenas
+    if operador == "+" and "string" in (izquierda, derecha):
+        return "string"
+
+    # Operaciones aritmeticas
+    if operador in ("+", "-", "*", "/", "%"):
+        if izquierda in numericos and derecha in numericos:
+            if "double" in (izquierda, derecha):
+                return "double"
+            return "int"
+
+    # Operaciones logicas
+    elif operador in ("&&", "||"):
+        if izquierda == derecha == "bool":
+            return "bool"
+
+    # Comparaciones relacionales
+    elif operador in ("<", ">", "<=", ">="):
+        if izquierda in numericos and derecha in numericos:
+            return "bool"
+
+    # Igualdad y desigualdad
+    elif operador in ("==", "!="):
+        if izquierda == derecha or (
+            izquierda in numericos and derecha in numericos
+        ):
+            return "bool"
+
+    # Si no cumple ninguna regla, registrar error
+    registrar_error_semantico(
+        f"[Operaciones permitidas] No se puede aplicar el operador '{operador}' "
+        f"a los operandos de tipo '{izquierda}' y '{derecha}'",
+        operador,
+        linea,
+        lexpos
+    )
+
+    return None
+
+
+# =========================================================
+# Steven Avelino - savelinop
+# AVANCE 3 - Regla 4: Retorno de funciones
+# =========================================================
+
+# Guarda las funciones que se estan analizando
+pila_funciones = []
+
+
+def compatible_retorno(tipo_destino, tipo_origen):
+    """
+    Comprueba que el tipo retornado sea compatible
+    con el tipo declarado de la funcion.
+    """
+
+    # Mismo tipo: permitido
+    if tipo_destino == tipo_origen:
+        return True
+
+    # C# permite convertir int a double implicitamente
+    if tipo_destino == "double" and tipo_origen == "int":
+        return True
+
+    # Los demas casos no son compatibles
+    return False
+
+
+def finalizar_funcion(garantiza_retorno, linea, lexpos):
+    """
+    Verifica si una funcion debe retornar un valor.
+    """
+
+    funcion = pila_funciones.pop()
+
+    # Las funciones no void deben garantizar un retorno
+    if funcion["tipo"] != "void" and not garantiza_retorno:
+
+        registrar_error_semantico(
+            f"[Retorno de funciones] La funcion "
+            f"'{funcion['nombre']}' no retorna un valor "
+            f"en todas las rutas de codigo",
+            funcion["nombre"],
+            linea,
+            lexpos
+        )
+
+    # Restaurar las variables anteriores
+    tabla_simbolos["variables"] = funcion["variables_anteriores"]
+
+
+# =========================================================
+# Steven Avelino - savelinop
+# Avance 3 - Regla 4: Preparar el contexto de la funcion
+# =========================================================
+
+def p_preparar_funcion(p):
+    """preparar_funcion : """
+
+    # Obtener los datos de la funcion declarada
+    tipo = p[-5]
+    nombre = p[-4]
+    parametros = p[-2] or []
+
+    # Guardar el contexto de la funcion actual
+    pila_funciones.append({
+        "tipo": tipo,
+        "nombre": nombre,
+        "variables_anteriores": tabla_simbolos["variables"].copy()
+    })
+
+    # Registrar los parametros para reconocer sus tipos
+    for nombre_parametro, tipo_parametro in parametros:
+        registrar_variable(nombre_parametro, tipo_parametro, False)
+
+# FIN APORTE: Steven Avelino - savelinop
+
+
+
+# FIN APORTE: Steven Avelino - savelinop
+
+
+# FIN APORTE: Steven Avelino - savelinop (Regla 3)
 
 # =========================================================
 # Geovanny Diaz - g30dl (Analizador Sintactico)
@@ -38,6 +175,12 @@ def p_instrucciones(p):
     """instrucciones : instruccion instrucciones
                      | instruccion
     """
+    # Steven Avelino - savelinop
+    # Propagar el retorno de las instrucciones
+    p[0] = bool(p[1]) or (
+        bool(p[2]) if len(p) == 3 else False
+    )
+
 
 def p_instruccion(p):
     """instruccion : asignacion_variable
@@ -77,6 +220,50 @@ def p_instruccion(p):
         if tabla_simbolos["contexto"]["funciones"] == 0:
             registrar_error_semantico(
                 "Sentencia fuera de una funcion", p[1], p.lineno(1), p.lexpos(1))
+    
+    # Steven Avelino - savelinop
+    # Avance 3: Verificar el tipo de cada return
+
+    if p.slice[1].type == "RETURN":
+        p[0] = True
+
+        if pila_funciones:
+            funcion = pila_funciones[-1]
+            tipo_esperado = funcion["tipo"]
+            tiene_valor = len(p) == 4
+            tipo_devuelto = p[2] if tiene_valor else None
+
+            if tipo_esperado == "void" and tiene_valor:
+                registrar_error_semantico(
+                    "[Retorno de funciones] Una funcion 'void' "
+                    "no puede devolver un valor",
+                    p[1], p.lineno(1), p.lexpos(1)
+                )
+
+            elif tipo_esperado != "void" and not tiene_valor:
+                registrar_error_semantico(
+                    f"[Retorno de funciones] La funcion "
+                    f"'{funcion['nombre']}' debe retornar un "
+                    f"valor de tipo '{tipo_esperado}'",
+                    p[1], p.lineno(1), p.lexpos(1)
+                )
+
+            elif (tipo_esperado != "void"
+                  and tiene_valor
+                  and tipo_devuelto is not None
+                  and not compatible_retorno(
+                      tipo_esperado, tipo_devuelto
+                  )):
+                registrar_error_semantico(
+                    f"[Retorno de funciones] La funcion "
+                    f"'{funcion['nombre']}' debe retornar "
+                    f"'{tipo_esperado}', pero devolvio "
+                    f"'{tipo_devuelto}'",
+                    p[1], p.lineno(1), p.lexpos(1)
+                )
+    else:
+        p[0] = p[1] if isinstance(p[1], bool) else False
+        
 
 def p_asignacion_variable_constante(p):
     """asignacion_variable : CONST tipo ID ASSIGN expresion SEMICOLON
@@ -175,10 +362,15 @@ def p_abrir_bucle(p):
     tabla_simbolos["contexto"]["bucles"] += 1
 
 #GD-AnalizadorSemantico
+
 def p_cuerpo_funciones(p):
     """cuerpo_funciones : LBRACE abrir_funcion instrucciones RBRACE
                         | LBRACE abrir_funcion RBRACE
     """
+
+    # Steven Avelino - savelinop
+    p[0] = bool(p[3]) if len(p) == 5 else False
+
 
 #GD-AnalizadorSemantico
 def p_abrir_funcion(p):
@@ -190,15 +382,32 @@ def p_diccionario(p):
     """ 
     #Dictionary<tipo,tipo> dic = new Dictionary<tipo,tipo>();
 
+
 def p_funcion_estatica(p):
-    """funcion_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN cuerpo_funciones
+    """funcion_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN preparar_funcion cuerpo_funciones
     """
-    tabla_simbolos["contexto"]["funciones"] -= 1  #GD-AnalizadorSemantico
+
+    # Geovanny Diaz: cerrar el contexto de la funcion
+    tabla_simbolos["contexto"]["funciones"] -= 1
+
+    # Steven Avelino - savelinop (Avance 3)
+    # Comprobar el retorno de la funcion
+    finalizar_funcion(
+        p[8],
+        p.lineno(3),
+        p.lexpos(3)
+    )
+
+
 
 def p_tipo_retorno_funcion(p):
     """tipo_retorno_funcion : tipo
                             | VOID
     """
+    # Steven Avelino - savelinop (Avance 3)
+    # Guardar el tipo de retorno declarado
+    p[0] = p[1]
+
 
 def p_condicion(p):
     """condicion : expresion
@@ -219,6 +428,7 @@ def p_operando(p):
     else:
         p[0] = p[1]
 
+
 def p_operador_logico(p):
     """operador_logico : LESS
                        | GREATER
@@ -228,20 +438,40 @@ def p_operador_logico(p):
                        | EQUAL
     """
 
+    # Steven Avelino - savelinop (Avance 3)
+    # Enviar el operador y su posicion a nuestra validacion
+    p[0] = p[1]
+    p.set_lineno(0, p.lineno(1))
+    p.set_lexpos(0, p.lexpos(1))
+
+
+
 def p_parametros(p):
     """parametros : lista_parametros
                   | empty
     """
+    # Steven Avelino - savelinop (Avance 3)
+    p[0] = p[1] or []
+
+
 
 def p_lista_parametros(p):
     """lista_parametros : parametro COMMA lista_parametros
                         | parametro
     """
+    # Steven Avelino - savelinop (Avance 3)
+    p[0] = [p[1]] + (p[3] if len(p) == 4 else [])
+
+
 
 def p_parametro(p):
     """parametro : tipo ID
                  | tipo ID ASSIGN valor
     """
+    # Steven Avelino - savelinop (Avance 3)
+    # Guardar nombre y tipo del parametro
+    p[0] = (p[2], p[1])
+
 
 def p_vacio(p):
     """empty : 
@@ -301,6 +531,7 @@ def reiniciar_semantico():
     tabla_simbolos["variables"].clear()
     tabla_simbolos["contexto"]["bucles"] = 0
     tabla_simbolos["contexto"]["funciones"] = 0
+    pila_funciones.clear()
 
 def registrar_error_semantico(descripcion, lexema, linea, lexpos):
     datos = lexico.lexer.lexdata
@@ -365,11 +596,23 @@ def p_expresion(p):
     """
 
 # 2. Estructuras de Control: if / else (Con soporte else if)
+
 def p_if_else(p):
     """if_else : IF LPAREN condicion RPAREN cuerpo_funciones
                | IF LPAREN condicion RPAREN cuerpo_funciones ELSE cuerpo_funciones
                | IF LPAREN condicion RPAREN cuerpo_funciones ELSE if_else
     """
+
+    # Steven Avelino - savelinop
+    # Avance 3: Verificar retorno en todas las rutas
+
+    if len(p) == 8:
+        # Tanto el if como el else deben garantizar retorno
+        p[0] = bool(p[5]) and bool(p[7])
+    else:
+        # Un if sin else no garantiza retorno
+        p[0] = False
+
 
 # 3. Estructuras de Datos: Arreglo
 def p_arreglo(p):
@@ -382,9 +625,22 @@ def p_elementos_arreglo(p):
     """
 
 # 4. Declaraciones de Funciones: Función con retorno y varios parámetros
+
 def p_funcion_con_retorno(p):
-    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN cuerpo_funciones
+    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN preparar_funcion cuerpo_funciones
     """
+
+    # Geovanny Diaz: cerrar contexto
+    tabla_simbolos["contexto"]["funciones"] -= 1
+
+    # Steven Avelino - savelinop (Avance 3)
+    # Validar que la funcion retorne correctamente
+    finalizar_funcion(
+        p[7],
+        p.lineno(2),
+        p.lexpos(2)
+    )
+
 
 # =========================================================
 # FIN APORTE: Mateo Gallegos - magasinc
@@ -423,29 +679,64 @@ def p_funcion_con_retorno(p):
 # var nombre = "Carlos";
 # var activo = true;
 
+
 def p_declaracion_var(p):
     """declaracion_var : VAR ID ASSIGN expresion SEMICOLON
     """
+    # Steven Avelino - savelinop (Avance 3)
+    # Guardar el tipo inferido de la variable
+    registrar_variable(p[2], p[4], False)
+
 
 # =========================================================
 
 # Regla 2: Expresiones aritmeticas
 # =========================================================
 
-# Suma y resta
+
+# Steven Avelino - savelinop
+# Avance 3: Validacion semantica de suma y resta
+
 def p_expresion(p):
     """expresion : expresion PLUS termino
                  | expresion MINUS termino
                  | termino
     """
 
-# Multiplicacion, division y modulo
+    if len(p) == 4:
+        p[0] = validar_operacion(
+            p[2],
+            p[1],
+            p[3],
+            p.lineno(2),
+            p.lexpos(2)
+        )
+    else:
+        p[0] = p[1]
+
+
+
+# Steven Avelino - savelinop
+# Avance 3: Validacion de multiplicacion, division y modulo
+
 def p_termino(p):
     """termino : termino TIMES factor
                | termino DIVIDE factor
                | termino MOD factor
                | factor
     """
+
+    if len(p) == 4:
+        p[0] = validar_operacion(
+            p[2],
+            p[1],
+            p[3],
+            p.lineno(2),
+            p.lexpos(2)
+        )
+    else:
+        p[0] = p[1]
+
 
 # Valores, identificadores y agrupacion con parentesis
 def p_factor(p):
@@ -460,22 +751,65 @@ def p_factor(p):
 # Regla 3: Expresiones booleanas
 # =========================================================
 
-# Conectores logicos AND (&&) y OR (||)
+
+# Steven Avelino - savelinop
+# Avance 3: Validacion de operadores logicos AND y OR
+
 def p_expresion_conectores(p):
     """expresion : expresion AND expresion
                  | expresion OR expresion
     """
 
+    p[0] = validar_operacion(
+        p[2],
+        p[1],
+        p[3],
+        p.lineno(2),
+        p.lexpos(2)
+    )
+
+
 # Comparaciones: >, <, >=, <=, ==, !=
 # Reutiliza operador_logico definido por Geovanny.
+
+# Steven Avelino - savelinop
+# Avance 3: Validacion de operadores relacionales
+
 def p_expresion_comparacion(p):
     """expresion : expresion operador_logico expresion %prec COMPARACION
     """
 
-# Negacion logica (!)
+    p[0] = validar_operacion(
+        p[2],
+        p[1],
+        p[3],
+        p.lineno(2),
+        p.lexpos(2)
+    )
+
+
+# Steven Avelino - savelinop
+# Avance 3: Validacion del operador NOT
+
 def p_expresion_negacion(p):
     """expresion : NOT expresion
     """
+
+    if p[2] is not None and p[2] != "bool":
+
+        registrar_error_semantico(
+            f"[Operaciones permitidas] El operador '!' "
+            f"requiere 'bool', se recibio '{p[2]}'",
+            p[1],
+            p.lineno(1),
+            p.lexpos(1)
+        )
+
+        p[0] = None
+
+    else:
+        p[0] = "bool" if p[2] is not None else None
+
 
 
 # Regla 4: Estructura de control FOR

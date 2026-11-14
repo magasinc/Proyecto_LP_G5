@@ -1,0 +1,20 @@
+==========================================
+ANALISIS SEMANTICO - C#
+Desarrollador: savelinop
+Fecha: 14/11/2026 11:30:12
+Archivo: prueba_semantico_steven.cs
+==========================================
+
+ERRORES SEMANTICOS:
+Error semantico: [Retorno de funciones] La funcion 'ObtenerEdad' debe retornar 'int', pero devolvio 'string' 'return' en linea 3, columna 5
+Error semantico: [Retorno de funciones] La funcion 'ObtenerEdad' no retorna un valor en todas las rutas de codigo 'ObtenerEdad' en linea 2, columna 12
+
+ERRORES SINTACTICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores semanticos: 2
+Total errores sintacticos: 0
+Total errores lexicos: 0
