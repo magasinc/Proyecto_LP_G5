@@ -1,6 +1,6 @@
 # Analizador de Código C#
 
-Compilador parcial para un subconjunto del lenguaje C#, desarrollado como proyecto académico para la materia **Ingeniería de Software II** (PAO 2 - 2026). El programa implementa las tres primeras fases de un compilador: análisis léxico, sintáctico y semántico.
+Compilador parcial para un subconjunto del lenguaje C#. El programa implementa las tres primeras fases de un compilador: análisis léxico, sintáctico y semántico.
 
 ## Integrantes (Grupo 10)
 
