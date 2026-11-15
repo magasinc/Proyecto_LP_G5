@@ -385,7 +385,11 @@ class Aplicacion(tk.Tk):
         if not os.path.isdir(CARPETA_LOGS):
             messagebox.showinfo("Logs", "Todavía no existe la carpeta de logs.")
             return
-        subprocess.Popen(["xdg-open", CARPETA_LOGS])
+        if os.name == "nt":
+            os.startfile(os.path.abspath(CARPETA_LOGS))
+        else:
+            comando = "open" if os.uname().sysname == "Darwin" else "xdg-open"
+            subprocess.Popen([comando, CARPETA_LOGS])
 
     def ayuda(self):
         messagebox.showinfo(

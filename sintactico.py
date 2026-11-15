@@ -275,7 +275,7 @@ def p_asignacion_variable_constante(p):
 # double promedio = 8.5;
 # bool activo = true;
 
-def p_declaracion_tipada_compartida(p):
+'''def p_declaracion_tipada_compartida(p):
     """asignacion_variable : tipo ID ASSIGN expresion SEMICOLON
     """
     registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
@@ -283,11 +283,47 @@ def p_declaracion_tipada_compartida(p):
 # Ejemplos:
 # edad = 22;
 # promedio = promedio + 1;
-# activo = edad >= 18;
+# activo = edad >= 18;'''
+
+'''def p_asignacion_simple_compartida(p):
+    """asignacion_variable : ID ASSIGN expresion SEMICOLON
+    """'''
+
+def p_declaracion_tipada_compartida(p):
+    """asignacion_variable : tipo ID ASSIGN expresion SEMICOLON
+    """
+    tipo_destino = p[1]
+    nombre_var = p[2]
+    tipo_origen = p[4]
+    
+    # Regla 1: Validar identificador (No duplicados)
+    registrar_variable(nombre_var, tipo_destino, False, p, 2)
+    # Regla 2: Validar pérdida de información
+    validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(2), p.lexpos(2))
 
 def p_asignacion_simple_compartida(p):
     """asignacion_variable : ID ASSIGN expresion SEMICOLON
     """
+    nombre_var = p[1]
+    tipo_origen = p[3]
+    
+    variable = tabla_simbolos["variables"].get(nombre_var)
+    if variable is None:
+        # Regla 1: La variable debe existir
+        registrar_error_semantico(
+            f"[Identificadores] La variable '{nombre_var}' no esta declarada en el contexto actual", 
+            nombre_var, p.lineno(1), p.lexpos(1)
+        )
+    else:
+        if variable["const"]:
+            registrar_error_semantico(
+                f"[Constantes] No se puede reasignar un valor a la constante '{nombre_var}'", 
+                nombre_var, p.lineno(1), p.lexpos(1)
+            )
+        else:
+            # Regla 2: Validar pérdida de información
+            tipo_destino = variable["tipo"]
+            validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(1), p.lexpos(1))
 
 def p_tipo_variable(p):
     """tipo : INT
@@ -318,9 +354,35 @@ def p_valor(p):
     else:
         p[0] = "bool"      # TRUE o FALSE
 
+#G-AnalizadorSemantico
+def validar_asignacion(tipo_destino, tipo_origen, lexema, linea, lexpos):
+    """Regla 2: Compatibilidad de tipos y pérdida de información."""
+    if tipo_destino is None or tipo_origen is None or tipo_destino == tipo_origen:
+        return
+
+    # C# permite conversiones implícitas seguras (ej. int a double o char a int/double)
+    if tipo_destino == "double" and tipo_origen in ["int", "char"]:
+        return
+    if tipo_destino == "int" and tipo_origen == "char":
+        return
+
+    # Cualquier otro caso genera error (ej. double a int pierde decimales)
+    registrar_error_semantico(
+        f"[Compatibilidad de Tipos] No se puede convertir implicitamente '{tipo_origen}' a '{tipo_destino}'. Posible perdida de informacion",
+        lexema, linea, lexpos
+    )
+
 #GD-AnalizadorSemantico
-def registrar_variable(nombre, tipo, constante):
-    tabla_simbolos["variables"][nombre] = {"tipo": tipo, "const": constante}
+def registrar_variable(nombre, tipo, constante, p_obj=None, p_index=1):
+    """Regla 1: Identificadores. Evita variables duplicadas en el mismo contexto."""
+    if nombre in tabla_simbolos["variables"]:
+        if p_obj:
+            registrar_error_semantico(
+                f"[Identificadores] La variable '{nombre}' ya esta declarada en este contexto", 
+                nombre, p_obj.lineno(p_index), p_obj.lexpos(p_index)
+            )
+    else:
+        tabla_simbolos["variables"][nombre] = {"tipo": tipo, "const": constante}
 
 def p_imprimir(p):
     """imprimir : ID DOT ID LPAREN condicion RPAREN SEMICOLON
@@ -417,13 +479,16 @@ def p_operando(p):
     """operando : ID
                 | valor
     """
-    #GD-AnalizadorSemantico
-    # Un literal trae su tipo; un ID lo trae de la tabla.
+    # Regla 1: Verificación de identificadores no declarados
     if p.slice[1].type == "ID":
         variable = tabla_simbolos["variables"].get(p[1])
         if variable is not None:
             p[0] = variable["tipo"]
         else:
+            registrar_error_semantico(
+                f"[Identificadores] El identificador '{p[1]}' no existe en el contexto actual", 
+                p[1], p.lineno(1), p.lexpos(1)
+            )
             p[0] = None
     else:
         p[0] = p[1]
@@ -576,15 +641,42 @@ def p_casting(p):
 # Mateo Gallegos - magasinc (Analizador Sintactico)
 # =========================================================
 
-# 1. Declaración y asignación básica (Ahora usan 'expresion')
-def p_declaracion_variable(p):
+# 1. Declaración y asignación básica
+'''def p_declaracion_variable(p):
     """declaracion_variable : tipo ID ASSIGN expresion SEMICOLON
     """
-    registrar_variable(p[2], p[1], False)  #GD-AnalizadorSemantico
+    tipo_destino = p[1]
+    nombre_var = p[2]
+    tipo_origen = p[4]
+    
+    # Regla 1: Validar identificador (No duplicados)
+    registrar_variable(nombre_var, tipo_destino, False, p, 2)
+    # Regla 2: Validar pérdida de información
+    validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(2), p.lexpos(2))'''
 
 def p_asignacion_basica(p):
     """asignacion_basica : ID ASSIGN expresion SEMICOLON
     """
+    nombre_var = p[1]
+    tipo_origen = p[3]
+    
+    variable = tabla_simbolos["variables"].get(nombre_var)
+    if variable is None:
+        # Regla 1: La variable debe existir
+        registrar_error_semantico(
+            f"[Identificadores] La variable '{nombre_var}' no esta declarada en el contexto actual", 
+            nombre_var, p.lineno(1), p.lexpos(1)
+        )
+    else:
+        if variable["const"]:
+            registrar_error_semantico(
+                f"[Constantes] No se puede reasignar un valor a la constante '{nombre_var}'", 
+                nombre_var, p.lineno(1), p.lexpos(1)
+            )
+        else:
+            # Regla 2: Validar pérdida de información
+            tipo_destino = variable["tipo"]
+            validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(1), p.lexpos(1))
 
 # Regla para soportar a + b + c + ...
 def p_expresion(p):
@@ -714,6 +806,97 @@ def p_expresion(p):
     else:
         p[0] = p[1]
 
+
+
+# =========================================================
+# INICIO APORTE: Mateo Gallegos - magasinc (Analizador Semantico)
+# =========================================================
+
+# 1. Declaración y asignación básica
+def p_declaracion_variable(p):
+    """declaracion_variable : tipo ID ASSIGN expresion SEMICOLON
+    """
+    tipo_destino = p[1]
+    nombre_var = p[2]
+    tipo_origen = p[4]
+    
+    # Regla 1: Validar identificador (No duplicados)
+    registrar_variable(nombre_var, tipo_destino, False, p, 2)
+    # Regla 2: Validar que el valor a asignar sea compatible con la variable
+    validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(2), p.lexpos(2))
+
+def p_asignacion_basica(p):
+    """asignacion_basica : ID ASSIGN expresion SEMICOLON
+    """
+    nombre_var = p[1]
+    tipo_origen = p[3]
+    
+    variable = tabla_simbolos["variables"].get(nombre_var)
+    if variable is None:
+        # Regla 1: La variable debe existir
+        registrar_error_semantico(
+            f"[Identificadores] La variable '{nombre_var}' no esta declarada en el contexto actual", 
+            nombre_var, p.lineno(1), p.lexpos(1)
+        )
+    else:
+        if variable["const"]:
+            registrar_error_semantico(
+                f"[Constantes] No se puede reasignar un valor a la constante '{nombre_var}'", 
+                nombre_var, p.lineno(1), p.lexpos(1)
+            )
+        else:
+            # Regla 2: Validar pérdida de información
+            tipo_destino = variable["tipo"]
+            validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(1), p.lexpos(1))
+
+# Regla para soportar a + b + c + ...
+def p_expresion(p):
+    """expresion : operando PLUS expresion
+                 | operando MINUS expresion
+                 | operando TIMES expresion
+                 | operando DIVIDE expresion
+                 | operando
+    """
+    # Usando validacion de Steven
+    if len(p) == 4:
+        p[0] = validar_operacion(p[2], p[1], p[3], p.lineno(2), p.lexpos(2))
+    else:
+        p[0] = p[1]
+
+# 2. Estructuras de Control: if / else
+'''def p_if_else(p):
+    """if_else : IF LPAREN condicion RPAREN cuerpo_funciones
+               | IF LPAREN condicion RPAREN cuerpo_funciones ELSE cuerpo_funciones
+               | IF LPAREN condicion RPAREN cuerpo_funciones ELSE if_else
+    """
+    if len(p) == 8:
+        p[0] = bool(p[5]) and bool(p[7])
+    else:
+        p[0] = False'''
+
+# 3. Estructuras de Datos: Arreglo
+def p_arreglo(p):
+    """arreglo : tipo LBRACKET RBRACKET ID ASSIGN LBRACE elementos_arreglo RBRACE SEMICOLON
+    """
+
+def p_elementos_arreglo(p):
+    """elementos_arreglo : valor COMMA elementos_arreglo
+                         | valor
+    """
+
+# 4. Declaraciones de Funciones: Función con retorno
+def p_funcion_con_retorno(p):
+    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN preparar_funcion cuerpo_funciones
+    """
+    tabla_simbolos["contexto"]["funciones"] -= 1
+    finalizar_funcion(p[7], p.lineno(2), p.lexpos(2))
+
+# =========================================================
+# FIN APORTE: Mateo Gallegos - magasinc
+# =========================================================
+
+
+# =========================================================
 
 
 # Steven Avelino - savelinop

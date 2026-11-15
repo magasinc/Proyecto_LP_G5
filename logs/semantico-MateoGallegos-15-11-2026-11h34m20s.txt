@@ -1,0 +1,19 @@
+==========================================
+ANALISIS SEMANTICO - C#
+Desarrollador: MateoGallegos
+Fecha: 15/11/2026 11:34:20
+Archivo: algoritmo_G_semantico.cs
+==========================================
+
+ERRORES SEMANTICOS:
+Sin errores semanticos
+
+ERRORES SINTACTICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores semanticos: 0
+Total errores sintacticos: 0
+Total errores lexicos: 0

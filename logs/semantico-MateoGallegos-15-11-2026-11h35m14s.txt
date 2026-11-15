@@ -1,0 +1,28 @@
+==========================================
+ANALISIS SEMANTICO - C#
+Desarrollador: MateoGallegos
+Fecha: 15/11/2026 11:35:14
+Archivo: algoritmo_G_semantico_errores.cs
+==========================================
+
+ERRORES SEMANTICOS:
+Error semantico: [Identificadores] La variable 'anio' ya esta declarada en este contexto 'anio' en linea 10, columna 5
+Error semantico: [Identificadores] La variable 'presupuesto' ya esta declarada en este contexto 'presupuesto' en linea 14, columna 6
+Error semantico: [Identificadores] La variable 'precio' no esta declarada en el contexto actual 'precio' en linea 17, columna 1
+Error semantico: [Compatibilidad de Tipos] No se puede convertir implicitamente 'double' a 'int'. Posible perdida de informacion 'distanciaMetros' en linea 23, columna 5
+Error semantico: [Compatibilidad de Tipos] No se puede convertir implicitamente 'string' a 'int'. Posible perdida de informacion 'codigoSeguridad' en linea 26, columna 5
+Error semantico: [Compatibilidad de Tipos] No se puede convertir implicitamente 'bool' a 'double'. Posible perdida de informacion 'factor' en linea 29, columna 8
+Error semantico: [Constantes] No se puede reasignar un valor a la constante 'MAXIMO_ALUMNOS' 'MAXIMO_ALUMNOS' en linea 35, columna 1
+Error semantico: [Identificadores] El identificador 'total' no existe en el contexto actual 'total' en linea 42, columna 13
+Error semantico: [Identificadores] El identificador 'descuento' no existe en el contexto actual 'descuento' en linea 42, columna 21
+Error semantico: [Identificadores] La variable 'total' no esta declarada en el contexto actual 'total' en linea 42, columna 5
+
+ERRORES SINTACTICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores sintacticos
+
+ERRORES LEXICOS ENCONTRADOS DURANTE EL ANALISIS:
+Sin errores lexicos
+
+Total errores semanticos: 10
+Total errores sintacticos: 0
+Total errores lexicos: 0
