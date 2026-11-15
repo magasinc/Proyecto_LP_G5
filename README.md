@@ -2,7 +2,7 @@
 
 Compilador parcial para un subconjunto del lenguaje C#. El programa implementa las tres primeras fases de un compilador: análisis léxico, sintáctico y semántico.
 
-## Integrantes (Grupo 10)
+## Integrantes (Grupo 5)
 
 - Mateo Gallegos
 - Steven Avelino
