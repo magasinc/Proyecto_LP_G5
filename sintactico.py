@@ -190,8 +190,6 @@ def p_instruccion(p):
                    | diccionario
                    | funcion_estatica
                    | lectura
-                   | declaracion_variable
-                   | asignacion_basica
                    | if_else
                    | arreglo
                    
@@ -654,39 +652,7 @@ def p_casting(p):
     # Regla 2: Validar pérdida de información
     validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(2), p.lexpos(2))'''
 
-def p_asignacion_basica(p):
-    """asignacion_basica : ID ASSIGN expresion SEMICOLON
-    """
-    nombre_var = p[1]
-    tipo_origen = p[3]
-    
-    variable = tabla_simbolos["variables"].get(nombre_var)
-    if variable is None:
-        # Regla 1: La variable debe existir
-        registrar_error_semantico(
-            f"[Identificadores] La variable '{nombre_var}' no esta declarada en el contexto actual", 
-            nombre_var, p.lineno(1), p.lexpos(1)
-        )
-    else:
-        if variable["const"]:
-            registrar_error_semantico(
-                f"[Constantes] No se puede reasignar un valor a la constante '{nombre_var}'", 
-                nombre_var, p.lineno(1), p.lexpos(1)
-            )
-        else:
-            # Regla 2: Validar pérdida de información
-            tipo_destino = variable["tipo"]
-            validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(1), p.lexpos(1))
-
 # Regla para soportar a + b + c + ...
-def p_expresion(p):
-    """expresion : operando PLUS expresion
-                 | operando MINUS expresion
-                 | operando TIMES expresion
-                 | operando DIVIDE expresion
-                 | operando
-    """
-
 # 2. Estructuras de Control: if / else (Con soporte else if)
 
 def p_if_else(p):
@@ -707,32 +673,7 @@ def p_if_else(p):
 
 
 # 3. Estructuras de Datos: Arreglo
-def p_arreglo(p):
-    """arreglo : tipo LBRACKET RBRACKET ID ASSIGN LBRACE elementos_arreglo RBRACE SEMICOLON
-    """
-
-def p_elementos_arreglo(p):
-    """elementos_arreglo : valor COMMA elementos_arreglo
-                         | valor
-    """
-
 # 4. Declaraciones de Funciones: Función con retorno y varios parámetros
-
-def p_funcion_con_retorno(p):
-    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN preparar_funcion cuerpo_funciones
-    """
-
-    # Geovanny Diaz: cerrar contexto
-    tabla_simbolos["contexto"]["funciones"] -= 1
-
-    # Steven Avelino - savelinop (Avance 3)
-    # Validar que la funcion retorne correctamente
-    finalizar_funcion(
-        p[7],
-        p.lineno(2),
-        p.lexpos(2)
-    )
-
 
 # =========================================================
 # FIN APORTE: Mateo Gallegos - magasinc
@@ -813,56 +754,7 @@ def p_expresion(p):
 # =========================================================
 
 # 1. Declaración y asignación básica
-def p_declaracion_variable(p):
-    """declaracion_variable : tipo ID ASSIGN expresion SEMICOLON
-    """
-    tipo_destino = p[1]
-    nombre_var = p[2]
-    tipo_origen = p[4]
-    
-    # Regla 1: Validar identificador (No duplicados)
-    registrar_variable(nombre_var, tipo_destino, False, p, 2)
-    # Regla 2: Validar que el valor a asignar sea compatible con la variable
-    validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(2), p.lexpos(2))
-
-def p_asignacion_basica(p):
-    """asignacion_basica : ID ASSIGN expresion SEMICOLON
-    """
-    nombre_var = p[1]
-    tipo_origen = p[3]
-    
-    variable = tabla_simbolos["variables"].get(nombre_var)
-    if variable is None:
-        # Regla 1: La variable debe existir
-        registrar_error_semantico(
-            f"[Identificadores] La variable '{nombre_var}' no esta declarada en el contexto actual", 
-            nombre_var, p.lineno(1), p.lexpos(1)
-        )
-    else:
-        if variable["const"]:
-            registrar_error_semantico(
-                f"[Constantes] No se puede reasignar un valor a la constante '{nombre_var}'", 
-                nombre_var, p.lineno(1), p.lexpos(1)
-            )
-        else:
-            # Regla 2: Validar pérdida de información
-            tipo_destino = variable["tipo"]
-            validar_asignacion(tipo_destino, tipo_origen, nombre_var, p.lineno(1), p.lexpos(1))
-
 # Regla para soportar a + b + c + ...
-def p_expresion(p):
-    """expresion : operando PLUS expresion
-                 | operando MINUS expresion
-                 | operando TIMES expresion
-                 | operando DIVIDE expresion
-                 | operando
-    """
-    # Usando validacion de Steven
-    if len(p) == 4:
-        p[0] = validar_operacion(p[2], p[1], p[3], p.lineno(2), p.lexpos(2))
-    else:
-        p[0] = p[1]
-
 # 2. Estructuras de Control: if / else
 '''def p_if_else(p):
     """if_else : IF LPAREN condicion RPAREN cuerpo_funciones
