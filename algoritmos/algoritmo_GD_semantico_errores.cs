@@ -4,6 +4,9 @@
 //
 // Cada caso marcado "ERROR" debe reportar exactamente 1 error semantico.
 // Todo el archivo es lexica y sintacticamente correcto: el semantico asume sintaxis valida.
+// Las variables se declaran antes de usarse (regla 1 de identificadores).
+
+bool activo = true;
 
 // ===================================================================
 // REGLA 5: break, continue y return fuera de su contexto

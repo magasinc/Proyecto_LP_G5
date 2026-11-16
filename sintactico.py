@@ -15,6 +15,7 @@ tabla_simbolos = {
     "contexto":{"bucles":0, "funciones":0}
     }
 #Añadir mas elementos a la tabla de simbolos segun se requiera
+
 start = "programa"
 precedence = (
     ('left', 'OR'),
@@ -352,7 +353,7 @@ def p_valor(p):
     else:
         p[0] = "bool"      # TRUE o FALSE
 
-#G-AnalizadorSemantico
+
 def validar_asignacion(tipo_destino, tipo_origen, lexema, linea, lexpos):
     """Regla 2: Compatibilidad de tipos y pérdida de información."""
     if tipo_destino is None or tipo_origen is None or tipo_destino == tipo_origen:
@@ -370,7 +371,7 @@ def validar_asignacion(tipo_destino, tipo_origen, lexema, linea, lexpos):
         lexema, linea, lexpos
     )
 
-#GD-AnalizadorSemantico
+
 def registrar_variable(nombre, tipo, constante, p_obj=None, p_index=1):
     """Regla 1: Identificadores. Evita variables duplicadas en el mismo contexto."""
     if nombre in tabla_simbolos["variables"]:
@@ -408,6 +409,7 @@ def p_while(p):
     """while : WHILE LPAREN condicion RPAREN cuerpo_bucle
     """
     tabla_simbolos["contexto"]["bucles"] -= 1  #GD-AnalizadorSemantico
+    validar_condicion_bool(p[3], p[1], p.lineno(1), p.lexpos(1))  #GD-AnalizadorSemantico
 
 #GD-AnalizadorSemantico
 def p_cuerpo_bucle(p):
@@ -458,8 +460,6 @@ def p_funcion_estatica(p):
         p.lexpos(3)
     )
 
-
-
 def p_tipo_retorno_funcion(p):
     """tipo_retorno_funcion : tipo
                             | VOID
@@ -472,6 +472,7 @@ def p_tipo_retorno_funcion(p):
 def p_condicion(p):
     """condicion : expresion
     """
+    p[0] = p[1]  #GD-AnalizadorSemantico
 
 def p_operando(p):
     """operando : ID
@@ -615,6 +616,15 @@ def formatear_error_semantico(error):
     )
 
 #GD-AnalizadorSemantico
+def validar_condicion_bool(tipo, estructura, linea, lexpos):
+    """Regla 5: la condicion de if y while debe ser bool. Un tipo desconocido (None) no se marca."""
+    if tipo is not None and tipo != "bool":
+        registrar_error_semantico(
+            f"[Estructuras de Control] La condicion de la estructura '{estructura}' "
+            f"debe ser de tipo 'bool', se proporciono '{tipo}'",
+            estructura, linea, lexpos)
+
+#GD-AnalizadorSemantico
 def p_casting(p):
     """factor : LPAREN tipo RPAREN factor
     """
@@ -660,6 +670,8 @@ def p_if_else(p):
                | IF LPAREN condicion RPAREN cuerpo_funciones ELSE cuerpo_funciones
                | IF LPAREN condicion RPAREN cuerpo_funciones ELSE if_else
     """
+
+    validar_condicion_bool(p[3], p[1], p.lineno(1), p.lexpos(1))  #GD-AnalizadorSemantico
 
     # Steven Avelino - savelinop
     # Avance 3: Verificar retorno en todas las rutas
@@ -920,10 +932,17 @@ def p_incremento_decremento(p):
                              | INCREMENT ID SEMICOLON
                              | DECREMENT ID SEMICOLON
     """
+    #GD-AnalizadorSemantico
+    # Regla 6: una constante no se puede modificar, tampoco con ++ o --.
+    indice = 1 if p.slice[1].type == "ID" else 2
+    variable = tabla_simbolos["variables"].get(p[indice])
+    if variable is not None and variable["const"]:
+        registrar_error_semantico(
+            f"[Constantes] No se puede modificar la constante '{p[indice]}'",
+            p[indice], p.lineno(indice), p.lexpos(indice))
 
 # Regla 5: Estructura de datos List<T>
 # =========================================================
-
 # Declaracion de listas genericas en C#
 # Ejemplo 1: List<int> numeros = new List<int>();
 # Ejemplo 2: List<int> numeros = new List<int> {1, 2, 3};
@@ -971,7 +990,6 @@ def p_factor_llamada(p):
     """factor : llamada
     """
 
-
 # Ejemplos:
 # static void Saludar() {
 #     Console.WriteLine("Hola");
@@ -1016,8 +1034,4 @@ def p_factor_llamada(p):
 # 3. Suma y resta
 
 # =========================================================
-
-
-
-
 parser = yacc.yacc()

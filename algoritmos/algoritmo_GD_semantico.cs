@@ -7,11 +7,20 @@
 // Parte 3: casting entre tipos numericos (caso valido).
 //
 // Todo el archivo es lexica y sintacticamente correcto: el semantico asume sintaxis valida.
-// Las variables no estan declaradas a proposito: eso es tema de la regla 1 (Mateo).
+// Las variables se declaran antes de usarse (regla 1 de identificadores).
 
 // ===================================================================
 // PARTE 1: CASOS VALIDOS
 // ===================================================================
+
+int contador = 0;
+int i = 0;
+int a = 0;
+int b = 0;
+bool activo = true;
+int edad = 20;
+bool terminado = false;
+double radio = 2.5;
 
 // --- Regla 5: break y continue dentro de bucles ---
 while (true) {
@@ -21,7 +30,8 @@ while (contador < 5) {
     contador++;
     continue;
 }
-for (int i = 0; i < 5; i++) {
+// i se declara antes del for, porque el for no registra su propia variable.
+for (i = 0; i < 5; i++) {
     if (i == 2) {
         continue;
     }
