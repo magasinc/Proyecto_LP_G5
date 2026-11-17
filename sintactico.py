@@ -209,19 +209,18 @@ def p_diccionario(p):
     #Dictionary<tipo,tipo> dic = new Dictionary<tipo,tipo>();
 
 def p_funcion_estatica(p):
-    """funcion_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN preparar_funcion cuerpo_funciones
+    """funcion_estatica : encabezado_estatica cuerpo_funciones
     """
-
-    # Geovanny Diaz: cerrar el contexto de la funcion
+    #Cerrar el contexto de la funcion
     tabla_simbolos["contexto"]["funciones"] -= 1
 
     # Steven Avelino - savelinop (Avance 3)
     # Comprobar el retorno de la funcion
     # =========== Steven Avelino ===========
     finalizar_funcion(
-        p[8],
-        p.lineno(3),
-        p.lexpos(3)
+        p[2],
+        p[1][0],
+        p[1][1]
     )
     # ============== Steven Avelino ==================
 
@@ -562,12 +561,12 @@ def p_elementos_arreglo(p):
 
 # 4. Declaraciones de Funciones: Función con retorno
 def p_funcion_con_retorno(p):
-    """funcion_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN preparar_funcion cuerpo_funciones
+    """funcion_con_retorno : encabezado_con_retorno cuerpo_funciones
     """
     # =========== Geovanny Diaz ===========
     tabla_simbolos["contexto"]["funciones"] -= 1
     # ============== Geovanny Diaz ==================
-    finalizar_funcion(p[7], p.lineno(2), p.lexpos(2))
+    finalizar_funcion(p[2], p[1][0], p[1][1])
 
 # =========================================================
 # FIN APORTE: Mateo Gallegos - magasinc
@@ -997,14 +996,7 @@ def finalizar_funcion(garantiza_retorno, linea, lexpos):
     tabla_simbolos["variables"] = funcion["variables_anteriores"]
 
 # Avance 3 - Regla 4: Preparar el contexto de la funcion
-def p_preparar_funcion(p):
-    """preparar_funcion : """
-
-    # Obtener los datos de la funcion declarada
-    tipo = p[-5]
-    nombre = p[-4]
-    parametros = p[-2] or []
-
+def preparar_contexto_funcion(tipo, nombre, parametros):
     # Guardar el contexto de la funcion actual
     pila_funciones.append({
         "tipo": tipo,
@@ -1015,6 +1007,20 @@ def p_preparar_funcion(p):
     # Registrar los parametros para reconocer sus tipos
     for nombre_parametro, tipo_parametro in parametros:
         registrar_variable(nombre_parametro, tipo_parametro, False)
+
+# El encabezado se reduce al cerrar el parentesis, asi no hay regla vacia
+# que el parser repita sin fin al recuperarse de un error de sintaxis.
+def p_encabezado_estatica(p):
+    """encabezado_estatica : STATIC tipo_retorno_funcion ID LPAREN parametros RPAREN
+    """
+    preparar_contexto_funcion(p[2], p[3], p[5] or [])
+    p[0] = (p.lineno(3), p.lexpos(3))
+
+def p_encabezado_con_retorno(p):
+    """encabezado_con_retorno : tipo_retorno_funcion ID LPAREN lista_parametros RPAREN
+    """
+    preparar_contexto_funcion(p[1], p[2], p[4] or [])
+    p[0] = (p.lineno(2), p.lexpos(2))
 
 # =========================================================
 # FIN APORTE: Steven Avelino - savelinop

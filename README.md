@@ -41,7 +41,10 @@ Valida el **significado** del código durante el parseo mediante una tabla de s�
 - **Compatibilidad de tipos en operaciones**: verifica que los operandos sean compatibles (ej: no sumar `bool + int`), soporta concatenación de cadenas con `+`, y promoción implícita de `int` a `double`.
 - **Retorno de funciones**: verifica que las funciones no-void retornen un valor en todas las rutas, que el tipo retornado sea compatible con el declarado, y que las funciones `void` no retornen valores.
 - **Contexto de estructuras de control**: `break` y `continue` solo dentro de bucles, `return` solo dentro de funciones.
-- **Inmutabilidad de constantes**: las variables declaradas con `const` no se pueden reasignar.
+- **Condición booleana**: la condición de `if` y `while` debe ser de tipo `bool`.
+- **Identificadores**: una variable debe estar declarada antes de usarse.
+- **Asignación de tipos**: el valor asignado debe ser compatible con el tipo de la variable.
+- **Inmutabilidad de constantes**: las variables declaradas con `const` no se pueden reasignar ni modificar con `++` o `--`.
 - **Casting entre tipos**: solo se permite entre tipos numéricos (`int`, `double`, `char`).
 
 ## Requisitos
@@ -50,6 +53,13 @@ Valida el **significado** del código durante el parseo mediante una tabla de s�
 - Librería PLY (Python Lex-Yacc):
   ```bash
   pip install ply
+  ```
+- Tkinter (solo para la interfaz gráfica `gui.py`). Viene incluido con Python en Windows y macOS; en Linux se instala aparte:
+  ```bash
+  # Debian/Ubuntu
+  sudo apt install python3-tk
+  # Arch
+  sudo pacman -S tk
   ```
 
 ## Uso

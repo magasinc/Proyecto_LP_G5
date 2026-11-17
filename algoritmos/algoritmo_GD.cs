@@ -2,6 +2,7 @@
 // Analizador Lexico: palabras reservadas y errores lexicos
 
 // ===== PARTE 1: PALABRAS RESERVADAS =====
+bool activo = true;
 
 // if / else
 if (activo) {
@@ -17,7 +18,7 @@ while (activo) {
 }
 
 // for
-for (;;) {
+for (int i = 0; i < 10; i++) {
     break;
 }
 
